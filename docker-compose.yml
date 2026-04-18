@@ -1,0 +1,104 @@
+name: bookbridge
+
+services:
+  # 前端服务
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        - BUILD_ENV=production
+    ports:
+      - "3000:4173"
+    depends_on:
+      - backend
+    environment:
+      - VITE_API_BASE_URL=http://backend:8000/api
+      - VITE_APP_VERSION=1.0.0
+    networks:
+      - bookbridge-network
+    restart: always
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4173"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # 后端服务
+  backend:
+    build:
+      context: ./backend
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+      - redis
+    environment:
+      - ENVIRONMENT=production
+      - DB_USER=book_bridge_user
+      - DB_PASSWORD=book_bridge_password
+      - DB_HOST=db
+      - DB_PORT=3306
+      - DB_NAME=book_bridge
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - SECRET_KEY=your-secret-key-for-production
+    networks:
+      - bookbridge-network
+    restart: always
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    volumes:
+      - ./backend/logs:/app/logs
+
+  # 数据库服务
+  db:
+    image: mysql:8.4
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=root_password
+      - MYSQL_USER=book_bridge_user
+      - MYSQL_PASSWORD=book_bridge_password
+      - MYSQL_DATABASE=book_bridge
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./backend/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - bookbridge-network
+    restart: always
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Redis服务
+  redis:
+    image: redis:7.4
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - bookbridge-network
+    restart: always
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  mysql-data:
+  redis-data:
+
+networks:
+  bookbridge-network:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.28.0.0/16
