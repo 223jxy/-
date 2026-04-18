@@ -1,0 +1,3288 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>书驿云桥 - 二手书交易平台</title>
+  <!-- 引入Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- 引入Font Awesome图标 -->
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet" media="print" onload="this.media='all'" fetchpriority="low">
+  <!-- 引入Chart.js (延迟加载) -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" defer></script>
+  <!-- 数据可视化脚本 -->
+  <script defer>
+    document.addEventListener('DOMContentLoaded', function() {
+      // 初始化图表
+      initCharts();
+    });
+    
+    function initCharts() {
+      // 图书分类分布图表
+      const categoryCtx = document.getElementById('categoryChart');
+      if (categoryCtx) {
+        new Chart(categoryCtx, {
+          type: 'doughnut',
+          data: {
+            labels: ['教材教辅', '文学小说', '人文社科', '自然科学', '艺术设计', '其他'],
+            datasets: [{
+              data: [35, 25, 15, 10, 10, 5],
+              backgroundColor: [
+                '#2c5282',
+                '#b83240',
+                '#3182ce',
+                '#276749',
+                '#c05621',
+                '#718096'
+              ],
+              borderWidth: 0
+            }]
+          },
+          options: {
+            responsive: true,
+            plugins: {
+              legend: {
+                position: 'bottom'
+              },
+              tooltip: {
+                callbacks: {
+                  label: function(context) {
+                    return context.label + ': ' + context.raw + '%';
+                  }
+                }
+              }
+            }
+          }
+        });
+      }
+      
+      // 价格趋势图表
+      const priceCtx = document.getElementById('priceChart');
+      if (priceCtx) {
+        new Chart(priceCtx, {
+          type: 'line',
+          data: {
+            labels: ['1月', '2月', '3月', '4月', '5月', '6月'],
+            datasets: [{
+              label: '平均价格',
+              data: [25, 28, 32, 30, 35, 40],
+              borderColor: '#2c5282',
+              backgroundColor: 'rgba(44, 82, 130, 0.1)',
+              tension: 0.4,
+              fill: true
+            }]
+          },
+          options: {
+            responsive: true,
+            plugins: {
+              legend: {
+                position: 'top'
+              }
+            },
+            scales: {
+              y: {
+                beginAtZero: true,
+                title: {
+                  display: true,
+                  text: '价格 (元)'
+                }
+              }
+            }
+          }
+        });
+      }
+      
+      // 交易量图表
+      const transactionCtx = document.getElementById('transactionChart');
+      if (transactionCtx) {
+        new Chart(transactionCtx, {
+          type: 'bar',
+          data: {
+            labels: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
+            datasets: [{
+              label: '交易量',
+              data: [120, 190, 150, 200, 250, 300, 280],
+              backgroundColor: '#b83240'
+            }]
+          },
+          options: {
+            responsive: true,
+            plugins: {
+              legend: {
+                position: 'top'
+              }
+            },
+            scales: {
+              y: {
+                beginAtZero: true,
+                title: {
+                  display: true,
+                  text: '交易次数'
+                }
+              }
+            }
+          }
+        });
+      }
+    }
+  </script>
+  <!-- 配置Tailwind自定义主题 -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#2c5282', // 现代学术蓝 (主色调)
+            secondary: '#2a4365', // 深蓝色 (主色调变体)
+            accent: '#b83240', // 酒红色 (强调色)
+            'teal-accent': '#3182ce', // 蓝绿色 (次要强调色)
+            success: '#276749', // 深绿色 (成功状态)
+            warning: '#c05621', // 琥珀色 (警告状态)
+            error: '#c53030', // 红色 (错误状态)
+            info: '#3182ce', // 蓝色 (信息状态)
+            dark: '#2d3748', // 深色文本
+            neutral: '#f7fafc', // 主背景色
+            light: '#edf2f7', // 次要背景色
+            'neutral-dark': '#e2e8f0', // 边框和分隔线
+            'primary-light': '#3182ce', // 浅蓝色 (悬停状态)
+            'accent-light': '#c84250', // 浅酒红色 (悬停状态)
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            serif: ['Georgia', 'serif'],
+          },
+          boxShadow: {
+            'card': '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+            'card-hover': '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+            'button': '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+            'button-hover': '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+          },
+          animation: {
+            'float': 'float 3s ease-in-out infinite',
+            'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+            'fade-in': 'fadeIn 0.5s ease-in-out',
+            'slide-up': 'slideUp 0.3s ease-out',
+            'slide-down': 'slideDown 0.3s ease-out',
+          },
+          keyframes: {
+            float: {
+              '0%, 100%': { transform: 'translateY(0)' },
+              '50%': { transform: 'translateY(-10px)' },
+            },
+            fadeIn: {
+              '0%': { opacity: '0' },
+              '100%': { opacity: '1' },
+            },
+            slideUp: {
+              '0%': { transform: 'translateY(20px)', opacity: '0' },
+              '100%': { transform: 'translateY(0)', opacity: '1' },
+            },
+            slideDown: {
+              '0%': { transform: 'translateY(-20px)', opacity: '0' },
+              '100%': { transform: 'translateY(0)', opacity: '1' },
+            },
+          },
+        },
+      }
+    }
+  </script>
+  <!-- 自定义工具类 -->
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto {
+        content-visibility: auto;
+      }
+      .text-shadow {
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      .text-shadow-lg {
+        text-shadow: 0 4px 8px rgba(0, 0, 0, 0.12), 0 2px 4px rgba(0, 0, 0, 0.08);
+      }
+      .bg-gradient-primary {
+        background: linear-gradient(135deg, #3a5a82 0%, #2c4a70 100%);
+      }
+      .bg-gradient-accent {
+        background: linear-gradient(135deg, #a63842 0%, #8b2c36 100%);
+      }
+      .bg-gradient-neutral {
+        background: linear-gradient(135deg, #f8f5f0 0%, #f0ede5 100%);
+      }
+      .transition-all-300 {
+        transition: all 0.3s ease-in-out;
+      }
+      .transition-transform-300 {
+        transition: transform 0.3s ease-in-out;
+      }
+      .transition-shadow-300 {
+        transition: box-shadow 0.3s ease-in-out;
+      }
+      .transition-color-300 {
+        transition: color 0.3s ease-in-out;
+      }
+      .scale-hover {
+        transition: transform 0.3s ease-in-out;
+      }
+      .scale-hover:hover {
+        transform: scale(1.03);
+      }
+      .card-hover {
+        transition: all 0.3s ease-in-out;
+      }
+      .card-hover:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--tw-shadow-card-hover);
+      }
+      .button-hover {
+        transition: all 0.3s ease-in-out;
+        position: relative;
+        overflow: hidden;
+      }
+      .button-hover:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--tw-shadow-button-hover);
+      }
+      .button-hover:active {
+        transform: translateY(0);
+      }
+      .button-hover::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+        transition: left 0.6s ease-in-out;
+      }
+      .button-hover:hover::before {
+        left: 100%;
+      }
+      .input-focus {
+        transition: all 0.3s ease-in-out;
+      }
+      .input-focus:focus {
+        box-shadow: 0 0 0 3px rgba(58, 90, 130, 0.2);
+        transform: translateY(-1px);
+      }
+      .progress-bar {
+        transition: width 0.5s ease-in-out;
+      }
+      .scrollbar-hide::-webkit-scrollbar {
+        display: none;
+      }
+      .scrollbar-hide {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+      .text-balance {
+        text-wrap: balance;
+      }
+      .text-pretty {
+        text-wrap: pretty;
+      }
+      .leading-relaxed {
+        line-height: 1.625;
+      }
+      .leading-loose {
+        line-height: 1.75;
+      }
+      .tracking-wide {
+        letter-spacing: 0.025em;
+      }
+      .tracking-wider {
+        letter-spacing: 0.05em;
+      }
+    }
+  </style>
+</head>
+<body class="bg-neutral font-sans text-dark leading-relaxed">
+  <!-- 导航栏 -->
+  <nav class="bg-white/90 backdrop-blur-sm shadow-md fixed w-full z-50 transition-all duration-300 py-2 sm:py-3" id="navbar">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-10 sm:h-12">
+        <!-- 左侧Logo和主导航 -->
+        <div class="flex items-center space-x-4 sm:space-x-6 lg:space-x-10">
+          <a href="#" class="flex items-center space-x-2 scale-hover">
+            <div class="bg-gradient-primary p-1.5 sm:p-2 rounded-lg shadow-button">
+              <i class="fa fa-book text-white text-lg sm:text-xl lg:text-2xl"></i>
+            </div>
+            <span class="text-base sm:text-lg lg:text-xl font-bold text-primary">书驿云桥</span>
+          </a>
+          <div class="hidden md:flex items-center space-x-3 sm:space-x-4 lg:space-x-8">
+            <a href="#home" class="text-gray-700 hover:text-primary font-medium transition-all-300 px-3 py-2 rounded-md hover:bg-primary/5 relative group">
+              <span>首页</span>
+              <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full"></span>
+            </a>
+            <div class="relative group">
+              <a href="#buy-book" class="text-gray-700 hover:text-primary font-medium transition-all-300 px-3 py-2 rounded-md hover:bg-primary/5 relative flex items-center">
+                <span>书店</span>
+                <i class="fa fa-angle-down ml-1 text-xs transition-transform duration-300 group-hover:rotate-180"></i>
+                <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full"></span>
+              </a>
+              <div class="absolute top-full left-0 mt-1 w-48 bg-white rounded-md shadow-lg py-1 z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform group-hover:translate-y-0 translate-y-2">
+                <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-primary hover:text-white transition-colors duration-200">二手教材</a>
+                <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-primary hover:text-white transition-colors duration-200">考试考研</a>
+                <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-primary hover:text-white transition-colors duration-200">学霸笔记</a>
+                <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-primary hover:text-white transition-colors duration-200">特价捡漏</a>
+              </div>
+            </div>
+            <a href="#recognition" class="text-gray-700 hover:text-primary font-medium transition-all-300 px-3 py-2 rounded-md hover:bg-primary/5 relative group">
+              <span>AI图书智能识别</span>
+              <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full"></span>
+            </a>
+            <div class="relative group">
+              <a href="#" class="text-gray-700 hover:text-primary font-medium transition-all-300 px-3 py-2 rounded-md hover:bg-primary/5 relative flex items-center">
+                <span>拍卖</span>
+                <i class="fa fa-angle-down ml-1 text-xs transition-transform duration-300 group-hover:rotate-180"></i>
+                <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full"></span>
+              </a>
+              <div class="absolute top-full left-0 mt-1 w-48 bg-white rounded-md shadow-lg py-1 z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform group-hover:translate-y-0 translate-y-2">
+                <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-primary hover:text-white transition-colors duration-200">即将结束</a>
+                <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-primary hover:text-white transition-colors duration-200">热门拍卖</a>
+                <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-primary hover:text-white transition-colors duration-200">我的拍卖</a>
+              </div>
+            </div>
+            <a href="#" class="text-gray-700 hover:text-primary font-medium transition-all-300 px-3 py-2 rounded-md hover:bg-primary/5 relative group">
+              <span>新书</span>
+              <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full"></span>
+            </a>
+            <a href="#" class="text-gray-700 hover:text-primary font-medium transition-all-300 px-3 py-2 rounded-md hover:bg-primary/5 relative group">
+              <span>收藏</span>
+              <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full"></span>
+            </a>
+          </div>
+        </div>
+        
+        <!-- 中间搜索栏 -->
+        <div class="hidden md:flex items-center flex-1 max-w-md sm:max-w-2xl mx-4 sm:mx-8">
+          <div class="relative w-full">
+            <input type="text" placeholder="搜索图书、作者、出版社" class="w-full px-4 py-2 pl-10 pr-4 rounded-full shadow-sm input-focus border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+            <i class="fa fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+          </div>
+        </div>
+        
+        <!-- 右侧功能区 -->
+        <div class="flex items-center space-x-1 sm:space-x-2 md:space-x-4">
+          <a href="#pricing" class="flex items-center space-x-1 text-gray-700 hover:text-primary transition-all-300 px-1.5 sm:px-2 md:px-3 py-1 sm:py-1.5 md:py-2 rounded-md hover:bg-primary/5 group">
+            <i class="fa fa-coins text-sm sm:text-base md:text-lg group-hover:scale-110 transition-transform-300"></i>
+            <span class="hidden sm:inline text-xs sm:text-sm md:text-base">积分 <span class="text-accent font-medium">850</span></span>
+          </a>
+          <a href="#profile" class="text-gray-700 hover:text-primary transition-all-300 px-1.5 sm:px-2 md:px-3 py-1 sm:py-1.5 md:py-2 rounded-md hover:bg-primary/5 group">
+            <i class="fa fa-user text-sm sm:text-base md:text-lg group-hover:scale-110 transition-transform-300"></i>
+          </a>
+          <a href="#" class="text-gray-700 hover:text-primary transition-all-300 relative px-1.5 sm:px-2 md:px-3 py-1 sm:py-1.5 md:py-2 rounded-md hover:bg-primary/5 group">
+            <i class="fa fa-shopping-cart text-sm sm:text-base md:text-lg group-hover:scale-110 transition-transform-300"></i>
+            <span class="absolute -top-1 -right-1 bg-accent text-white text-xs w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 flex items-center justify-center rounded-full shadow-button">3</span>
+          </a>
+          <a href="#" class="text-gray-700 hover:text-primary transition-all-300 px-1.5 sm:px-2 md:px-3 py-1 sm:py-1.5 md:py-2 rounded-md hover:bg-primary/5 group">
+            <i class="fa fa-list-alt text-sm sm:text-base md:text-lg group-hover:scale-110 transition-transform-300"></i>
+          </a>
+          <a href="#contact" class="text-gray-700 hover:text-primary transition-all-300 px-1.5 sm:px-2 md:px-3 py-1 sm:py-1.5 md:py-2 rounded-md hover:bg-primary/5 group">
+            <i class="fa fa-headphones text-sm sm:text-base md:text-lg group-hover:scale-110 transition-transform-300"></i>
+          </a>
+          <div class="flex items-center md:hidden">
+            <button id="mobile-menu-button" class="text-gray-700 hover:text-primary px-3 py-2 rounded-md hover:bg-primary/5 group transition-all-300">
+              <i class="fa fa-bars text-xl group-hover:scale-110 transition-transform-300"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- 移动端菜单 -->
+    <div id="mobile-menu" class="hidden md:hidden bg-white shadow-lg absolute w-full animate-fade-in">
+      <div class="px-4 py-4">
+        <div class="relative mb-6">
+          <input type="text" placeholder="搜索图书、作者、出版社" class="w-full px-4 py-3 pl-10 pr-4 rounded-full border border-gray-300 input-focus focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+          <i class="fa fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+        </div>
+        <div class="space-y-1">
+          <a href="#home" class="block px-4 py-3 rounded-md text-base font-medium text-gray-700 hover:bg-primary hover:text-white transition-all-300 transform hover:translate-x-2">首页</a>
+          <a href="#buy-book" class="block px-4 py-3 rounded-md text-base font-medium text-gray-700 hover:bg-primary hover:text-white transition-all-300 transform hover:translate-x-2">书店</a>
+          <a href="#" class="block px-4 py-3 rounded-md text-base font-medium text-gray-700 hover:bg-primary hover:text-white transition-all-300 transform hover:translate-x-2">拍卖</a>
+          <a href="#" class="block px-4 py-3 rounded-md text-base font-medium text-gray-700 hover:bg-primary hover:text-white transition-all-300 transform hover:translate-x-2">新书</a>
+          <a href="#" class="block px-4 py-3 rounded-md text-base font-medium text-gray-700 hover:bg-primary hover:text-white transition-all-300 transform hover:translate-x-2">收藏</a>
+          <a href="#recognition" class="block px-4 py-3 rounded-md text-base font-medium text-gray-700 hover:bg-primary hover:text-white transition-all-300 transform hover:translate-x-2">AI识别</a>
+          <a href="#pricing" class="block px-4 py-3 rounded-md text-base font-medium text-gray-700 hover:bg-primary hover:text-white transition-all-300 transform hover:translate-x-2">积分中心</a>
+          <a href="#profile" class="block px-4 py-3 rounded-md text-base font-medium text-gray-700 hover:bg-primary hover:text-white transition-all-300 transform hover:translate-x-2">个人中心</a>
+          <a href="#contact" class="block px-4 py-3 rounded-md text-base font-medium text-gray-700 hover:bg-primary hover:text-white transition-all-300 transform hover:translate-x-2">联系我们</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+  
+  <!-- 导航栏滚动效果脚本 -->
+  <script>
+    // 平滑滚动
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+          target.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
+          });
+        }
+      });
+    });
+    
+    // 导航栏滚动效果
+    window.addEventListener('scroll', function() {
+      const navbar = document.getElementById('navbar');
+      if (window.scrollY > 50) {
+        navbar.classList.add('py-1.5', 'bg-white', 'shadow-lg');
+        navbar.classList.remove('py-2', 'py-3', 'bg-white/90');
+      } else {
+        navbar.classList.add('py-2', 'sm:py-3', 'bg-white/90');
+        navbar.classList.remove('py-1.5', 'bg-white', 'shadow-lg');
+      }
+    });
+    
+    // 移动端菜单切换
+    document.getElementById('mobile-menu-button').addEventListener('click', function() {
+      const mobileMenu = document.getElementById('mobile-menu');
+      mobileMenu.classList.toggle('hidden');
+    });
+    
+    // 表单验证功能
+    document.addEventListener('DOMContentLoaded', function() {
+      // 添加表单验证
+      const forms = document.querySelectorAll('form');
+      forms.forEach(form => {
+        form.addEventListener('submit', function(e) {
+          e.preventDefault();
+          if (validateForm(form)) {
+            // 模拟表单提交
+            showNotification('提交成功！', 'success');
+            form.reset();
+          }
+        });
+      });
+      
+      // 实时表单验证
+      const inputs = document.querySelectorAll('input, textarea, select');
+      inputs.forEach(input => {
+        input.addEventListener('blur', function() {
+          validateField(this);
+        });
+        input.addEventListener('input', function() {
+          validateField(this);
+        });
+      });
+      
+      // 表单验证函数
+      function validateForm(form) {
+        let isValid = true;
+        const inputs = form.querySelectorAll('input[required], textarea[required], select[required]');
+        
+        inputs.forEach(input => {
+          if (!validateField(input)) {
+            isValid = false;
+          }
+        });
+        
+        return isValid;
+      }
+      
+      // 字段验证函数
+      function validateField(field) {
+        const value = field.value.trim();
+        const errorElement = field.nextElementSibling;
+        
+        // 清除之前的错误
+        if (errorElement && errorElement.classList.contains('error-message')) {
+          errorElement.remove();
+        }
+        
+        // 验证必填字段
+        if (field.hasAttribute('required') && value === '') {
+          showError(field, '此字段为必填项');
+          return false;
+        }
+        
+        // 验证邮箱
+        if (field.type === 'email' && value !== '') {
+          const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+          if (!emailRegex.test(value)) {
+            showError(field, '请输入有效的邮箱地址');
+            return false;
+          }
+        }
+        
+        // 验证手机号
+        if (field.type === 'tel' && value !== '') {
+          const phoneRegex = /^1[3-9]\d{9}$/;
+          if (!phoneRegex.test(value)) {
+            showError(field, '请输入有效的手机号码');
+            return false;
+          }
+        }
+        
+        // 验证密码长度
+        if (field.type === 'password' && value !== '' && value.length < 6) {
+          showError(field, '密码长度至少为6位');
+          return false;
+        }
+        
+        return true;
+      }
+      
+      // 显示错误信息
+      function showError(field, message) {
+        let errorElement = field.nextElementSibling;
+        if (!errorElement || !errorElement.classList.contains('error-message')) {
+          errorElement = document.createElement('div');
+          errorElement.className = 'error-message text-error text-sm mt-1';
+          field.parentNode.insertBefore(errorElement, field.nextSibling);
+        }
+        errorElement.textContent = message;
+        field.classList.add('border-error');
+        
+        // 3秒后自动清除错误
+        setTimeout(() => {
+          if (errorElement) {
+            errorElement.remove();
+          }
+          field.classList.remove('border-error');
+        }, 3000);
+      }
+      
+      // 通知函数
+      function showNotification(message, type = 'info') {
+        // 创建通知元素
+        const notification = document.createElement('div');
+        notification.className = `fixed top-20 right-4 px-6 py-3 rounded-lg shadow-lg z-50 transition-all duration-300 transform translate-x-full opacity-0`;
+        
+        // 根据类型设置样式
+        switch (type) {
+          case 'success':
+            notification.classList.add('bg-success', 'text-white');
+            break;
+          case 'error':
+            notification.classList.add('bg-error', 'text-white');
+            break;
+          case 'warning':
+            notification.classList.add('bg-warning', 'text-white');
+            break;
+          default:
+            notification.classList.add('bg-info', 'text-white');
+        }
+        
+        // 设置内容
+        notification.innerHTML = `
+          <div class="flex items-center">
+            <i class="fa fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : type === 'warning' ? 'exclamation-triangle' : 'info-circle'} mr-2"></i>
+            <span>${message}</span>
+          </div>
+        `;
+        
+        // 添加到页面
+        document.body.appendChild(notification);
+        
+        // 显示通知
+        setTimeout(() => {
+          notification.classList.remove('translate-x-full', 'opacity-0');
+        }, 100);
+        
+        // 3秒后隐藏通知
+        setTimeout(() => {
+          notification.classList.add('translate-x-full', 'opacity-0');
+          setTimeout(() => {
+            notification.remove();
+          }, 300);
+        }, 3000);
+      }
+      
+      // 实时数据加载示例
+      function loadData() {
+        // 模拟数据加载
+        const loadingElements = document.querySelectorAll('.loading-data');
+        loadingElements.forEach(element => {
+          element.innerHTML = '<div class="animate-pulse text-center py-8"><i class="fa fa-spinner fa-spin text-2xl text-primary mb-2"></i><p class="text-gray-600">加载中...</p></div>';
+          
+          // 模拟加载完成
+          setTimeout(() => {
+            element.innerHTML = '<div class="text-center py-8"><i class="fa fa-check-circle text-2xl text-success mb-2"></i><p class="text-gray-600">数据加载完成</p></div>';
+          }, 1500);
+        });
+      }
+      
+      // 初始化实时数据加载
+      loadData();
+      
+      // 每30秒自动刷新数据
+      setInterval(loadData, 30000);
+    });
+  </script>
+
+  <!-- 英雄区域 - Banner轮播 -->
+  <section id="home" class="pt-24 pb-10">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="relative rounded-2xl overflow-hidden shadow-xl">
+        <!-- Banner轮播 -->
+        <div class="relative h-[300px] sm:h-[350px] md:h-[400px] lg:h-[500px]">
+          <!-- 轮播项1 -->
+          <div class="absolute inset-0 bg-gradient-to-r from-primary/90 to-secondary/90 text-white flex items-center animate-fade-in">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+              <div class="max-w-2xl">
+                <h1 class="text-[clamp(1.5rem,4vw,3rem)] font-bold leading-tight mb-4 text-shadow-lg animate-slide-up text-balance">
+                  新书专场
+                </h1>
+                <p class="text-base sm:text-lg mb-6 sm:mb-8 text-gray-100 animate-slide-up leading-relaxed" style="animation-delay: 0.1s;">
+                  精选最新出版图书，低至5折起，限时特惠
+                </p>
+                <a href="#books" class="inline-block bg-white text-primary font-medium px-5 sm:px-6 py-2 sm:py-3 rounded-full shadow-button button-hover animate-slide-up" style="animation-delay: 0.2s;">
+                  立即查看 <i class="fa fa-arrow-right ml-2"></i>
+                </a>
+              </div>
+            </div>
+            <div class="hidden md:block absolute right-0 top-0 bottom-0 w-1/2 overflow-hidden">
+              <img src="https://picsum.photos/id/24/800/600" alt="新书专场" class="h-full w-full object-cover animate-float">
+            </div>
+          </div>
+        </div>
+        <!-- 轮播指示器 -->
+        <div class="absolute bottom-6 left-1/2 transform -translate-x-1/2 flex space-x-3 animate-slide-up" style="animation-delay: 0.3s;">
+          <button class="w-3 h-3 rounded-full bg-white opacity-100 transition-all-300 hover:scale-125"></button>
+          <button class="w-3 h-3 rounded-full bg-white opacity-50 transition-all-300 hover:scale-125"></button>
+          <button class="w-3 h-3 rounded-full bg-white opacity-50 transition-all-300 hover:scale-125"></button>
+          <button class="w-3 h-3 rounded-full bg-white opacity-50 transition-all-300 hover:scale-125"></button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 核心功能区 -->
+  <section class="py-10 sm:py-12 bg-gradient-to-br from-neutral to-light relative overflow-hidden">
+    <!-- 背景装饰 -->
+    <div class="absolute top-0 left-0 w-full h-full opacity-10">
+      <div class="absolute top-10 left-10 w-40 h-40 bg-primary rounded-full blur-3xl"></div>
+      <div class="absolute bottom-10 right-10 w-60 h-60 bg-accent rounded-full blur-3xl"></div>
+    </div>
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div class="text-center mb-8 sm:mb-10">
+        <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold text-dark mb-4 text-balance">核心功能</h2>
+        <p class="text-gray-600 max-w-2xl mx-auto leading-relaxed">探索我们的智能服务，让图书交易更简单、更高效</p>
+      </div>
+      <div class="flex flex-col lg:flex-row gap-6 sm:gap-8">
+        <!-- AI图书智能识别板块 -->
+              <div class="lg:w-2/5">
+                <div class="bg-white rounded-2xl shadow-card p-5 sm:p-6 h-full card-hover animate-fade-in relative overflow-hidden border border-neutral-dark">
+                  <!-- 装饰元素 -->
+                  <div class="absolute -top-10 -right-10 w-40 h-40 bg-primary/10 rounded-full blur-3xl"></div>
+                  <div class="relative z-10">
+                    <div class="flex items-center mb-5 sm:mb-6">
+                      <div class="bg-gradient-to-r from-primary to-secondary p-3 rounded-full mr-3 sm:mr-4 shadow-button group-hover:scale-110 transition-transform-300">
+                        <i class="fa fa-camera text-white text-2xl"></i>
+                      </div>
+                      <h3 class="text-lg sm:text-xl font-bold text-dark">AI图书智能识别</h3>
+                    </div>
+              <p class="text-gray-600 mb-5 sm:mb-6 leading-relaxed">拍照识别、扫码识别，快速匹配图书信息、品相评估、价格参考</p>
+              
+              <!-- 识别示例图 -->
+              <div class="grid grid-cols-3 gap-2 sm:gap-3 mb-5 sm:mb-6">
+                <div class="overflow-hidden rounded-md card-hover bg-gray-50 p-1">
+                  <img src="https://picsum.photos/id/24/100/140" alt="示例1" class="w-full h-16 sm:h-20 object-cover transition-transform-300 hover:scale-110 rounded">
+                </div>
+                <div class="overflow-hidden rounded-md card-hover bg-gray-50 p-1">
+                  <img src="https://picsum.photos/id/25/100/140" alt="示例2" class="w-full h-16 sm:h-20 object-cover transition-transform-300 hover:scale-110 rounded">
+                </div>
+                <div class="overflow-hidden rounded-md card-hover bg-gray-50 p-1">
+                  <img src="https://picsum.photos/id/26/100/140" alt="示例3" class="w-full h-16 sm:h-20 object-cover transition-transform-300 hover:scale-110 rounded">
+                </div>
+              </div>
+              
+              <div class="bg-primary/5 rounded-lg p-3 mb-5 sm:mb-6 border border-primary/10">
+                <p class="text-sm text-gray-600 flex items-center">
+                  <i class="fa fa-lightbulb-o text-warning mr-2 animate-pulse-slow"></i>
+                  拍照清晰识别更准确
+                </p>
+              </div>
+              
+              <button class="w-full bg-gradient-to-r from-primary to-secondary text-white font-medium py-2 sm:py-3 rounded-xl button-hover flex items-center justify-center group" onclick="document.getElementById('recognition').scrollIntoView({behavior: 'smooth'})">
+                      <i class="fa fa-camera mr-2 group-hover:rotate-12 transition-transform-300"></i>
+                      立即识别
+                      <i class="fa fa-arrow-right ml-2 group-hover:translate-x-1 transition-transform-300"></i>
+                    </button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 积分兑换板块 -->
+              <div class="lg:w-3/5">
+                <div class="bg-gradient-to-br from-accent/5 to-accent/10 rounded-2xl shadow-card p-5 sm:p-6 h-full card-hover animate-fade-in relative overflow-hidden border border-neutral-dark" style="animation-delay: 0.1s;">
+                  <!-- 装饰元素 -->
+                  <div class="absolute -bottom-10 -left-10 w-40 h-40 bg-accent/10 rounded-full blur-3xl"></div>
+                  <div class="relative z-10">
+                    <div class="flex items-center justify-between mb-5 sm:mb-6">
+                      <div class="flex items-center">
+                        <div class="bg-gradient-to-r from-accent to-accent-light p-3 rounded-full mr-3 sm:mr-4 shadow-button group-hover:scale-110 transition-transform-300">
+                          <i class="fa fa-coins text-white text-2xl"></i>
+                        </div>
+                  <div>
+                    <h3 class="text-lg sm:text-xl font-bold text-dark">积分兑换</h3>
+                    <p class="text-sm text-gray-600">当前积分：<span class="text-accent font-bold animate-pulse-slow">850</span></p>
+                  </div>
+                </div>
+                <a href="#pricing" class="text-accent hover:underline font-medium flex items-center transform hover:translate-x-1 transition-transform group">
+                  查看全部 <i class="fa fa-angle-right ml-1 group-hover:translate-x-0.5 transition-transform"></i>
+                </a>
+              </div>
+              
+              <!-- 兑换规则 -->
+              <div class="bg-white/70 rounded-xl p-3 sm:p-4 mb-5 sm:mb-6 shadow-sm border border-white">
+                <h4 class="font-semibold mb-2 sm:mb-3 text-dark flex items-center">
+                  <i class="fa fa-list-ul text-accent mr-2"></i>
+                  兑换规则
+                </h4>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3 text-sm">
+                  <div class="flex items-center mb-2 sm:mb-0 group bg-white/50 p-2 rounded-lg">
+                    <i class="fa fa-check-circle text-success mr-2 group-hover:scale-110 transition-transform-300"></i>
+                    <span>下单获积分</span>
+                  </div>
+                  <div class="flex items-center mb-2 sm:mb-0 group bg-white/50 p-2 rounded-lg">
+                    <i class="fa fa-check-circle text-success mr-2 group-hover:scale-110 transition-transform-300"></i>
+                    <span>签到领积分</span>
+                  </div>
+                  <div class="flex items-center group bg-white/50 p-2 rounded-lg">
+                    <i class="fa fa-check-circle text-success mr-2 group-hover:scale-110 transition-transform-300"></i>
+                    <span>积分换图书</span>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- 热门兑换商品 -->
+              <div>
+                <h4 class="font-semibold mb-3 sm:mb-4 text-dark flex items-center">
+                  <i class="fa fa-fire text-warning mr-2"></i>
+                  热门兑换
+                </h4>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+                  <div class="bg-white rounded-xl p-3 sm:p-4 card-hover cursor-pointer border border-gray-100">
+                    <div class="relative overflow-hidden rounded-md mb-2 sm:mb-3">
+                      <img src="https://picsum.photos/id/27/100/140" alt="图书1" class="w-full h-20 sm:h-24 object-cover transition-transform-300 hover:scale-105">
+                      <div class="absolute top-2 right-2 bg-accent text-white text-xs px-2 py-1 rounded-full">热</div>
+                    </div>
+                    <p class="text-sm font-medium truncate">Python编程</p>
+                    <p class="text-xs text-accent font-medium flex items-center">
+                      <i class="fa fa-coins mr-1"></i>
+                      50积分
+                    </p>
+                  </div>
+                  <div class="bg-white rounded-xl p-3 sm:p-4 card-hover cursor-pointer border border-gray-100">
+                    <div class="relative overflow-hidden rounded-md mb-2 sm:mb-3">
+                      <img src="https://picsum.photos/id/28/100/140" alt="图书2" class="w-full h-20 sm:h-24 object-cover transition-transform-300 hover:scale-105">
+                    </div>
+                    <p class="text-sm font-medium truncate">算法导论</p>
+                    <p class="text-xs text-accent font-medium flex items-center">
+                      <i class="fa fa-coins mr-1"></i>
+                      80积分
+                    </p>
+                  </div>
+                  <div class="bg-white rounded-xl p-3 sm:p-4 card-hover cursor-pointer border border-gray-100">
+                    <div class="relative overflow-hidden rounded-md mb-2 sm:mb-3">
+                      <img src="https://picsum.photos/id/29/100/140" alt="图书3" class="w-full h-20 sm:h-24 object-cover transition-transform-300 hover:scale-105">
+                      <div class="absolute top-2 right-2 bg-success text-white text-xs px-2 py-1 rounded-full">新</div>
+                    </div>
+                    <p class="text-sm font-medium truncate">考研笔记</p>
+                    <p class="text-xs text-accent font-medium flex items-center">
+                      <i class="fa fa-coins mr-1"></i>
+                      30积分
+                    </p>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="mt-5 sm:mt-6 text-center">
+                <div class="bg-accent/10 inline-block px-4 py-2 rounded-full border border-accent/20">
+                  <p class="text-sm text-gray-700 flex items-center justify-center">
+                    <i class="fa fa-star text-warning mr-1 animate-pulse-slow"></i>
+                    积分当钱花，1积分=1元
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 金刚区图标 -->
+  <section class="py-6 sm:py-8 lg:py-10 bg-white">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-8 gap-2 sm:gap-3 md:gap-4 lg:gap-6">
+        <a href="#buy-book" class="flex flex-col items-center p-2 sm:p-3 md:p-4 lg:p-5 rounded-xl bg-white shadow-sm card-hover group animate-fade-in" style="animation-delay: 0s;">
+          <div class="bg-gradient-primary p-1.5 sm:p-2 md:p-3 lg:p-4 rounded-full mb-1 sm:mb-2 lg:mb-3 shadow-button group-hover:scale-110 transition-transform-300">
+            <i class="fa fa-book text-white text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl"></i>
+          </div>
+          <span class="text-xs sm:text-xs md:text-sm font-medium text-gray-700 text-center group-hover:text-primary transition-color-300">二手教材</span>
+        </a>
+        <a href="#" class="flex flex-col items-center p-2 sm:p-3 md:p-4 lg:p-5 rounded-xl bg-white shadow-sm card-hover group animate-fade-in" style="animation-delay: 0.1s;">
+          <div class="bg-gradient-accent p-1.5 sm:p-2 md:p-3 lg:p-4 rounded-full mb-1 sm:mb-2 lg:mb-3 shadow-button group-hover:scale-110 transition-transform-300">
+            <i class="fa fa-graduation-cap text-white text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl"></i>
+          </div>
+          <span class="text-xs sm:text-xs md:text-sm font-medium text-gray-700 text-center group-hover:text-accent transition-color-300">考试考研</span>
+        </a>
+        <a href="#" class="flex flex-col items-center p-2 sm:p-3 md:p-4 lg:p-5 rounded-xl bg-white shadow-sm card-hover group animate-fade-in" style="animation-delay: 0.2s;">
+          <div class="bg-gradient-to-br from-warning to-amber-600 p-1.5 sm:p-2 md:p-3 lg:p-4 rounded-full mb-1 sm:mb-2 lg:mb-3 shadow-button group-hover:scale-110 transition-transform-300">
+            <i class="fa fa-pencil text-white text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl"></i>
+          </div>
+          <span class="text-xs sm:text-xs md:text-sm font-medium text-gray-700 text-center group-hover:text-warning transition-color-300">学霸笔记</span>
+        </a>
+        <a href="#" class="flex flex-col items-center p-2 sm:p-3 md:p-4 lg:p-5 rounded-xl bg-white shadow-sm card-hover group animate-fade-in" style="animation-delay: 0.3s;">
+          <div class="bg-gradient-to-br from-success to-green-600 p-1.5 sm:p-2 md:p-3 lg:p-4 rounded-full mb-1 sm:mb-2 lg:mb-3 shadow-button group-hover:scale-110 transition-transform-300">
+            <i class="fa fa-tag text-white text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl"></i>
+          </div>
+          <span class="text-xs sm:text-xs md:text-sm font-medium text-gray-700 text-center group-hover:text-success transition-color-300">特价捡漏</span>
+        </a>
+        <a href="#" class="flex flex-col items-center p-2 sm:p-3 md:p-4 lg:p-5 rounded-xl bg-white shadow-sm card-hover group animate-fade-in" style="animation-delay: 0.4s;">
+          <div class="bg-gradient-to-br from-info to-blue-600 p-1.5 sm:p-2 md:p-3 lg:p-4 rounded-full mb-1 sm:mb-2 lg:mb-3 shadow-button group-hover:scale-110 transition-transform-300">
+            <i class="fa fa-gavel text-white text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl"></i>
+          </div>
+          <span class="text-xs sm:text-xs md:text-sm font-medium text-gray-700 text-center group-hover:text-info transition-color-300">在线拍卖</span>
+        </a>
+        <a href="#" class="flex flex-col items-center p-2 sm:p-3 md:p-4 lg:p-5 rounded-xl bg-white shadow-sm card-hover group animate-fade-in" style="animation-delay: 0.5s;">
+          <div class="bg-gradient-to-br from-purple-600 to-indigo-600 p-1.5 sm:p-2 md:p-3 lg:p-4 rounded-full mb-1 sm:mb-2 lg:mb-3 shadow-button group-hover:scale-110 transition-transform-300">
+            <i class="fa fa-store text-white text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl"></i>
+          </div>
+          <span class="text-xs sm:text-xs md:text-sm font-medium text-gray-700 text-center group-hover:text-purple-600 transition-color-300">店铺大全</span>
+        </a>
+        <a href="#" class="flex flex-col items-center p-2 sm:p-3 md:p-4 lg:p-5 rounded-xl bg-white shadow-sm card-hover group animate-fade-in" style="animation-delay: 0.6s;">
+          <div class="bg-gradient-to-br from-pink-600 to-rose-600 p-1.5 sm:p-2 md:p-3 lg:p-4 rounded-full mb-1 sm:mb-2 lg:mb-3 shadow-button group-hover:scale-110 transition-transform-300">
+            <i class="fa fa-clock-o text-white text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl"></i>
+          </div>
+          <span class="text-xs sm:text-xs md:text-sm font-medium text-gray-700 text-center group-hover:text-pink-600 transition-color-300">每日上新</span>
+        </a>
+        <a href="#" class="flex flex-col items-center p-2 sm:p-3 md:p-4 lg:p-5 rounded-xl bg-white shadow-sm card-hover group animate-fade-in" style="animation-delay: 0.7s;">
+          <div class="bg-gradient-to-br from-orange-500 to-amber-600 p-1.5 sm:p-2 md:p-3 lg:p-4 rounded-full mb-1 sm:mb-2 lg:mb-3 shadow-button group-hover:scale-110 transition-transform-300">
+            <i class="fa fa-user-plus text-white text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl"></i>
+          </div>
+          <span class="text-xs sm:text-xs md:text-sm font-medium text-gray-700 text-center group-hover:text-orange-500 transition-color-300">卖家中心</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- AI识别区域 -->
+  <section id="recognition" class="py-16 bg-gradient-to-br from-neutral to-light">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-12">
+        <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold text-dark mb-4 text-shadow text-balance">AI图书智能识别</h2>
+        <p class="text-gray-600 max-w-2xl mx-auto leading-relaxed">上传图书照片，我们的AI系统将自动识别图书类型，并根据图书价值计算可兑换的积分</p>
+      </div>
+      
+      <div class="max-w-4xl mx-auto bg-white rounded-2xl p-6 md:p-8 shadow-card animate-fade-in relative overflow-hidden">
+        <!-- 装饰元素 -->
+        <div class="absolute -top-20 -right-20 w-60 h-60 bg-primary/5 rounded-full blur-3xl"></div>
+        <div class="absolute -bottom-20 -left-20 w-60 h-60 bg-accent/5 rounded-full blur-3xl"></div>
+        
+        <div class="relative z-10">
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div class="flex flex-col items-center justify-center">
+              <!-- 图片上传区域 -->
+              <div id="drop-area" class="w-full h-64 border-2 border-dashed border-gray-300 rounded-xl flex flex-col items-center justify-center mb-6 hover:border-primary transition-all-300 cursor-pointer group bg-white shadow-sm">
+                <input type="file" id="file-input" class="hidden" accept="image/*,.pdf,.doc,.docx,.txt" multiple>
+                <div class="bg-primary/10 p-4 rounded-full mb-4 group-hover:bg-primary/20 transition-colors transform group-hover:scale-110 transition-transform-300">
+                  <i class="fa fa-cloud-upload text-4xl text-primary mb-2"></i>
+                </div>
+                <p class="text-gray-600 text-center px-4 group-hover:text-primary transition-color-300">点击或拖拽文件到此处<br>支持图片、PDF、Word、文本文件</p>
+                <img id="preview-image" class="hidden absolute max-h-60 object-contain rounded" src="" alt="预览图片">
+                <div id="file-list" class="hidden absolute inset-0 w-full h-full p-4 bg-white overflow-auto rounded-xl shadow-lg">
+                  <h4 class="font-medium mb-2">已选择文件：</h4>
+                  <ul id="file-items" class="space-y-2"></ul>
+                </div>
+              </div>
+              <div class="flex flex-wrap gap-3 w-full max-w-md">
+                <button id="upload-btn" class="bg-gradient-to-r from-primary to-secondary text-white px-6 py-2.5 rounded-xl button-hover flex-1 sm:flex-none w-full sm:w-auto group">
+                  <i class="fa fa-upload mr-2 group-hover:rotate-12 transition-transform-300"></i>上传文件
+                </button>
+                <button id="reset-btn" class="bg-neutral-dark text-gray-700 px-6 py-2.5 rounded-xl button-hover flex-1 sm:flex-none w-full sm:w-auto group">
+                  <i class="fa fa-refresh mr-2 group-hover:rotate-180 transition-transform-300"></i>重新上传
+                </button>
+              </div>
+            </div>
+            
+            <div class="flex flex-col justify-center">
+              <div id="result-area" class="hidden animate-slide-up">
+                <h3 class="text-xl font-semibold mb-4 text-primary flex items-center">
+                  <i class="fa fa-check-circle mr-2"></i>
+                  识别结果
+                </h3>
+                <div class="space-y-4">
+                  <div class="bg-gray-50 rounded-xl p-4 shadow-sm border border-gray-100">
+                    <label class="block text-gray-700 font-medium mb-2">图书类型</label>
+                    <div id="book-type" class="bg-white p-3 rounded-lg border border-gray-200 font-medium shadow-sm"></div>
+                  </div>
+                  <div class="bg-gray-50 rounded-xl p-4 shadow-sm border border-gray-100">
+                    <label class="block text-gray-700 font-medium mb-2">图书估价</label>
+                    <div id="book-price" class="bg-white p-3 rounded-lg border border-gray-200 font-medium shadow-sm"></div>
+                  </div>
+                  <div class="bg-gray-50 rounded-xl p-4 shadow-sm border border-gray-100">
+                    <label class="block text-gray-700 font-medium mb-2">可兑换积分</label>
+                    <div id="book-points" class="bg-white p-3 rounded-lg border border-gray-200 font-medium text-primary font-bold shadow-sm"></div>
+                  </div>
+                  
+                  <!-- AI评分详情 -->
+                  <div class="bg-gray-50 rounded-xl p-4 shadow-sm border border-gray-100">
+                    <label class="block text-gray-700 font-medium mb-2 flex items-center">
+                      <i class="fa fa-bar-chart mr-2 text-primary"></i>
+                      AI评分详情
+                    </label>
+                    <div class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
+                      <div class="space-y-4">
+                        <div>
+                          <div class="flex justify-between mb-1">
+                            <span class="text-sm text-gray-600">品相评分</span>
+                            <span class="text-sm font-medium" id="condition-score">85%</span>
+                          </div>
+                          <div class="w-full bg-neutral-dark rounded-full h-3">
+                            <div id="condition-bar" class="bg-primary h-3 rounded-full progress-bar" style="width: 85%"></div>
+                          </div>
+                        </div>
+                        <div>
+                          <div class="flex justify-between mb-1">
+                            <span class="text-sm text-gray-600">内容完整性</span>
+                            <span class="text-sm font-medium" id="content-score">90%</span>
+                          </div>
+                          <div class="w-full bg-neutral-dark rounded-full h-3">
+                            <div id="content-bar" class="bg-accent h-3 rounded-full progress-bar" style="width: 90%"></div>
+                          </div>
+                        </div>
+                        <div>
+                          <div class="flex justify-between mb-1">
+                            <span class="text-sm text-gray-600">市场价值</span>
+                            <span class="text-sm font-medium" id="value-score">75%</span>
+                          </div>
+                          <div class="w-full bg-neutral-dark rounded-full h-3">
+                            <div id="value-bar" class="bg-teal-accent h-3 rounded-full progress-bar" style="width: 75%"></div>
+                          </div>
+                        </div>
+                        <div>
+                          <div class="flex justify-between mb-1">
+                            <span class="text-sm text-gray-600">稀有程度</span>
+                            <span class="text-sm font-medium" id="rarity-score">65%</span>
+                          </div>
+                          <div class="w-full bg-neutral-dark rounded-full h-3">
+                            <div id="rarity-bar" class="bg-secondary h-3 rounded-full progress-bar" style="width: 65%"></div>
+                          </div>
+                        </div>
+                        <div class="pt-2">
+                          <div class="flex justify-between mb-1">
+                            <span class="text-sm font-medium text-gray-700">综合评分</span>
+                            <span class="text-sm font-bold text-primary" id="overall-score">80%</span>
+                          </div>
+                          <div class="w-full bg-gray-200 rounded-full h-4">
+                            <div id="overall-bar" class="bg-gradient-primary h-4 rounded-full progress-bar" style="width: 80%"></div>
+                          </div>
+                          <div class="mt-2 text-center">
+                            <span id="overall-rating" class="inline-block px-3 py-1 rounded-full bg-primary/10 text-primary font-medium text-sm">良好</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <!-- 评分建议 -->
+                  <div class="bg-gray-50 rounded-xl p-4 shadow-sm border border-gray-100">
+                    <label class="block text-gray-700 font-medium mb-2 flex items-center">
+                      <i class="fa fa-lightbulb-o mr-2 text-warning"></i>
+                      AI建议
+                    </label>
+                    <div id="ai-suggestion" class="bg-white p-3 rounded-lg border border-gray-200 text-sm text-gray-600 shadow-sm"></div>
+                  </div>
+                  
+                  <!-- 评分历史 -->
+                  <div class="bg-gray-50 rounded-xl p-4 shadow-sm border border-gray-100">
+                    <label class="block text-gray-700 font-medium mb-2 flex items-center">
+                      <i class="fa fa-history mr-2 text-info"></i>
+                      评分历史
+                    </label>
+                    <div class="bg-white p-3 rounded-lg border border-gray-200 shadow-sm">
+                      <div class="space-y-2" id="rating-history">
+                        <div class="flex justify-between text-xs text-gray-600 pb-2 border-b border-gray-100 group hover:bg-gray-50 p-2 rounded -mx-2 transition-colors">
+                          <span>2025-11-28 14:30</span>
+                          <span>综合评分: 83%</span>
+                        </div>
+                        <div class="flex justify-between text-xs text-gray-600 pb-2 border-b border-gray-100 group hover:bg-gray-50 p-2 rounded -mx-2 transition-colors">
+                          <span>2025-11-25 10:15</span>
+                          <span>综合评分: 81%</span>
+                        </div>
+                        <div class="flex justify-between text-xs text-gray-600 group hover:bg-gray-50 p-2 rounded -mx-2 transition-colors">
+                          <span>2025-11-20 16:40</span>
+                          <span>综合评分: 79%</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <button id="reset-btn" class="mt-6 bg-neutral-dark text-gray-700 px-6 py-2.5 rounded-xl button-hover w-full group">
+                  <i class="fa fa-refresh mr-2 group-hover:rotate-180 transition-transform-300"></i>重新识别
+                </button>
+              </div>
+              
+              <div id="loading-area" class="hidden flex flex-col items-center justify-center h-full">
+                <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary mb-4"></div>
+                <p class="text-gray-700">AI正在识别中，请稍候...</p>
+                <div class="mt-4 w-full bg-neutral-dark rounded-full h-2.5 shadow-sm">
+                  <div id="loading-bar" class="bg-gradient-to-r from-primary to-secondary h-2.5 rounded-full progress-bar" style="width: 0%"></div>
+                </div>
+              </div>
+              
+              <div id="initial-area" class="flex flex-col items-center justify-center h-full animate-slide-up">
+                <p class="text-gray-600 text-center mb-8">
+                  上传图书照片后，系统将自动识别<br>新书、旧书或笔记类型，并计算积分
+                </p>
+                <div class="grid grid-cols-3 gap-4 w-full">
+                  <div class="text-center p-4 bg-primary/5 rounded-xl card-hover border border-primary/10">
+                    <div class="bg-primary/10 p-3 rounded-full mb-3 group-hover:scale-110 transition-transform-300">
+                      <i class="fa fa-book text-primary text-2xl"></i>
+                    </div>
+                    <p class="text-sm text-gray-600">新书识别</p>
+                  </div>
+                  <div class="text-center p-4 bg-accent/5 rounded-xl card-hover border border-accent/10">
+                    <div class="bg-accent/10 p-3 rounded-full mb-3 group-hover:scale-110 transition-transform-300">
+                      <i class="fa fa-bookmark text-accent text-2xl"></i>
+                    </div>
+                    <p class="text-sm text-gray-600">旧书识别</p>
+                  </div>
+                  <div class="text-center p-4 bg-warning/5 rounded-xl card-hover border border-warning/10">
+                    <div class="bg-warning/10 p-3 rounded-full mb-3 group-hover:scale-110 transition-transform-300">
+                      <i class="fa fa-sticky-note text-warning text-2xl"></i>
+                    </div>
+                    <p class="text-sm text-gray-600">笔记识别</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- 图书信息表单 -->
+          <div id="form-area" class="mt-8 hidden animate-slide-up">
+            <h3 class="text-xl font-semibold mb-4 text-primary flex items-center">
+              <i class="fa fa-book mr-2"></i>
+              图书信息确认
+            </h3>
+            <form id="book-form" class="space-y-4">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-gray-700 font-medium mb-1" for="book-name">图书名称 <span class="text-red-500">*</span></label>
+                  <input type="text" id="book-name" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg input-focus focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="输入图书名称" required>
+                </div>
+                <div>
+                  <label class="block text-gray-700 font-medium mb-1" for="book-author">作者 <span class="text-red-500">*</span></label>
+                  <input type="text" id="book-author" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg input-focus focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="输入作者姓名" required>
+                </div>
+                <div>
+                  <label class="block text-gray-700 font-medium mb-1" for="book-isbn">ISBN编号</label>
+                  <input type="text" id="book-isbn" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg input-focus focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="输入ISBN编号">
+                </div>
+                <div>
+                  <label class="block text-gray-700 font-medium mb-1" for="book-condition">图书品相 <span class="text-red-500">*</span></label>
+                  <select id="book-condition" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg input-focus focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" required>
+                    <option value="">请选择品相</option>
+                    <option value="new">全新</option>
+                    <option value="like-new">九成新</option>
+                    <option value="good">八成新</option>
+                    <option value="fair">七成新</option>
+                    <option value="poor">六成新及以下</option>
+                  </select>
+                </div>
+              </div>
+              <div>
+                <label class="block text-gray-700 font-medium mb-1" for="book-description">图书描述</label>
+                <textarea id="book-description" rows="3" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg input-focus focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="描述图书的具体情况"></textarea>
+              </div>
+              <div class="flex items-center">
+                <input type="checkbox" id="terms" class="w-4 h-4 text-primary focus:ring-primary border-gray-300 rounded" required>
+                <label for="terms" class="ml-2 block text-sm text-gray-700">我确认所提供的信息真实有效</label>
+              </div>
+              <button type="submit" class="w-full bg-gradient-primary text-white font-medium py-3 rounded-xl button-hover group">
+                确认提交 <i class="fa fa-check ml-2 group-hover:scale-110 transition-transform-300"></i>
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 积分规则区域 -->
+  <section id="pricing" class="py-12 sm:py-16 bg-gradient-neutral">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-10 sm:mb-12">
+        <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold text-dark mb-4 text-shadow">积分兑换规则</h2>
+        <p class="text-gray-600 max-w-2xl mx-auto">不同类型的图书对应不同的积分兑换比例，公平公正，物尽其用</p>
+      </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 max-w-5xl mx-auto">
+        <!-- 新书卡片 -->
+        <div class="bg-white rounded-2xl overflow-hidden shadow-card card-hover animate-fade-in">
+          <div class="bg-gradient-primary text-white p-5 sm:p-6 text-center">
+            <div class="bg-white/20 p-3 sm:p-4 rounded-full inline-block mb-2 sm:mb-3">
+              <i class="fa fa-book text-3xl sm:text-4xl mb-2 sm:mb-3"></i>
+            </div>
+            <h3 class="text-lg sm:text-xl font-bold">新书</h3>
+            <p class="text-sm opacity-90 mt-1">未翻阅/仅拆封</p>
+          </div>
+          <div class="p-5 sm:p-6">
+            <div class="text-center mb-3 sm:mb-4">
+              <span class="text-3xl sm:text-4xl font-bold text-primary">5元</span>
+              <span class="text-gray-600"> = </span>
+              <span class="text-3xl sm:text-4xl font-bold text-primary">1</span>
+              <span class="text-gray-600">积分</span>
+            </div>
+            <ul class="space-y-2 text-gray-600">
+              <li class="flex items-center group">
+                <i class="fa fa-check text-success mr-2 group-hover:scale-110 transition-transform-300"></i>
+                <span>全新未使用的图书</span>
+              </li>
+              <li class="flex items-center group">
+                <i class="fa fa-check text-success mr-2 group-hover:scale-110 transition-transform-300"></i>
+                <span>无任何笔迹和折痕</span>
+              </li>
+              <li class="flex items-center group">
+                <i class="fa fa-check text-success mr-2 group-hover:scale-110 transition-transform-300"></i>
+                <span>完整包装优先</span>
+              </li>
+              <li class="flex items-center group">
+                <i class="fa fa-check text-success mr-2 group-hover:scale-110 transition-transform-300"></i>
+                <span>正版图书</span>
+              </li>
+            </ul>
+            <div class="mt-5 sm:mt-6 pt-3 sm:pt-4 border-t border-gray-100">
+              <p class="text-sm text-gray-500 bg-primary/5 p-2 sm:p-3 rounded-lg">
+                <i class="fa fa-info-circle text-primary mr-1"></i> 
+                新书积分计算公式：图书价格 ÷ 5
+              </p>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 旧书卡片 -->
+        <div class="bg-white rounded-2xl overflow-hidden shadow-card card-hover animate-fade-in" style="animation-delay: 0.1s;">
+          <div class="bg-gradient-accent text-white p-5 sm:p-6 text-center">
+            <div class="bg-white/20 p-3 sm:p-4 rounded-full inline-block mb-2 sm:mb-3">
+              <i class="fa fa-bookmark text-3xl sm:text-4xl mb-2 sm:mb-3"></i>
+            </div>
+            <h3 class="text-lg sm:text-xl font-bold">旧书</h3>
+            <p class="text-sm opacity-90 mt-1">已使用/有痕迹</p>
+          </div>
+          <div class="p-5 sm:p-6">
+            <div class="text-center mb-3 sm:mb-4">
+              <span class="text-3xl sm:text-4xl font-bold text-accent">3元</span>
+              <span class="text-gray-600"> = </span>
+              <span class="text-3xl sm:text-4xl font-bold text-accent">1</span>
+              <span class="text-gray-600">积分</span>
+            </div>
+            <ul class="space-y-2 text-gray-600">
+              <li class="flex items-center group">
+                <i class="fa fa-check text-success mr-2 group-hover:scale-110 transition-transform-300"></i>
+                <span>有阅读痕迹的图书</span>
+              </li>
+              <li class="flex items-center group">
+                <i class="fa fa-check text-success mr-2 group-hover:scale-110 transition-transform-300"></i>
+                <span>允许少量笔记和折痕</span>
+              </li>
+              <li class="flex items-center group">
+                <i class="fa fa-check text-success mr-2 group-hover:scale-110 transition-transform-300"></i>
+                <span>无缺页、破损</span>
+              </li>
+              <li class="flex items-center group">
+                <i class="fa fa-check text-success mr-2 group-hover:scale-110 transition-transform-300"></i>
+                <span>正版图书</span>
+              </li>
+            </ul>
+            <div class="mt-5 sm:mt-6 pt-3 sm:pt-4 border-t border-gray-100">
+              <p class="text-sm text-gray-500 bg-accent/5 p-2 sm:p-3 rounded-lg">
+                <i class="fa fa-info-circle text-accent mr-1"></i> 
+                旧书积分计算公式：图书价格 ÷ 3 × 品相系数
+              </p>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 笔记卡片 -->
+        <div class="bg-white rounded-2xl overflow-hidden shadow-card card-hover animate-fade-in" style="animation-delay: 0.2s;">
+          <div class="bg-gradient-to-br from-warning to-amber-600 text-white p-5 sm:p-6 text-center">
+            <div class="bg-white/20 p-3 sm:p-4 rounded-full inline-block mb-2 sm:mb-3">
+              <i class="fa fa-sticky-note text-3xl sm:text-4xl mb-2 sm:mb-3"></i>
+            </div>
+            <h3 class="text-lg sm:text-xl font-bold">笔记</h3>
+            <p class="text-sm opacity-90 mt-1">手写/整理笔记</p>
+          </div>
+          <div class="p-5 sm:p-6">
+            <div class="text-center mb-3 sm:mb-4">
+              <span class="text-3xl sm:text-4xl font-bold text-warning">5元</span>
+              <span class="text-gray-600"> = </span>
+              <span class="text-3xl sm:text-4xl font-bold text-warning">2</span>
+              <span class="text-gray-600">积分</span>
+            </div>
+            <ul class="space-y-2 text-gray-600">
+              <li class="flex items-center group">
+                <i class="fa fa-check text-success mr-2 group-hover:scale-110 transition-transform-300"></i>
+                <span>手写整理的学习笔记</span>
+              </li>
+              <li class="flex items-center group">
+                <i class="fa fa-check text-success mr-2 group-hover:scale-110 transition-transform-300"></i>
+                <span>内容完整有条理</span>
+              </li>
+              <li class="flex items-center group">
+                <i class="fa fa-check text-success mr-2 group-hover:scale-110 transition-transform-300"></i>
+                <span>字迹清晰可辨认</span>
+              </li>
+              <li class="flex items-center group">
+                <i class="fa fa-check text-success mr-2 group-hover:scale-110 transition-transform-300"></i>
+                <span>有实用参考价值</span>
+              </li>
+            </ul>
+            <div class="mt-5 sm:mt-6 pt-3 sm:pt-4 border-t border-gray-100">
+              <p class="text-sm text-gray-500 bg-warning/5 p-2 sm:p-3 rounded-lg">
+                <i class="fa fa-info-circle text-warning mr-1"></i> 
+                笔记积分计算公式：笔记价值 ÷ 5 × 2 × 质量系数
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 积分计算器 -->
+      <div class="max-w-3xl mx-auto mt-10 sm:mt-12 bg-white rounded-2xl p-5 sm:p-6 md:p-8 shadow-card animate-fade-in" style="animation-delay: 0.3s;">
+        <h3 class="text-lg sm:text-xl font-semibold mb-5 sm:mb-6 text-primary text-center">积分计算器</h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4 mb-5 sm:mb-6">
+          <div>
+            <label class="block text-gray-700 font-medium mb-2" for="calc-type">图书类型</label>
+            <select id="calc-type" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg input-focus focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+              <option value="new">新书</option>
+              <option value="used">旧书</option>
+              <option value="notes">笔记</option>
+              <option value="textbook">教材</option>
+              <option value="reference">教辅</option>
+              <option value="novel">小说</option>
+              <option value="professional">专业书籍</option>
+              <option value="magazine">杂志</option>
+              <option value="picture">绘本</option>
+              <option value="reference_book">工具书</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-gray-700 font-medium mb-2" for="calc-price">图书价值（元）</label>
+            <input type="number" id="calc-price" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg input-focus focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="输入图书价值" min="0" step="0.1">
+          </div>
+          <div id="condition-select" class="">
+            <label class="block text-gray-700 font-medium mb-2" for="calc-condition">图书品相</label>
+            <select id="calc-condition" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg input-focus focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+              <option value="1">全新 (1.0)</option>
+              <option value="0.9">九成新 (0.9)</option>
+              <option value="0.8">八成新 (0.8)</option>
+              <option value="0.7">七成新 (0.7)</option>
+              <option value="0.6">六成新及以下 (0.6)</option>
+            </select>
+          </div>
+        </div>
+        <button id="calculate-points" class="w-full bg-gradient-primary text-white font-medium py-3 rounded-xl button-hover mb-4">
+          <i class="fa fa-calculator mr-2"></i>计算积分
+        </button>
+        <div id="calc-result" class="hidden p-4 bg-gray-50 rounded-xl border border-gray-200 shadow-sm animate-fade-in">
+          <h4 class="font-medium text-gray-700 mb-2">计算结果</h4>
+          <p class="text-lg font-bold text-primary" id="result-points">0 积分</p>
+          <p class="text-sm text-gray-600 mt-2" id="result-formula"></p>
+        </div>
+      </div>
+      
+      <!-- 积分获取方式 -->
+      <div class="max-w-4xl mx-auto mt-10 sm:mt-12 bg-white rounded-2xl p-5 sm:p-6 md:p-8 shadow-card animate-fade-in" style="animation-delay: 0.4s;">
+        <h3 class="text-lg sm:text-xl font-semibold mb-5 sm:mb-6 text-primary text-center">积分获取方式</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+          <div class="flex items-start p-3 sm:p-4 bg-gray-50 rounded-xl card-hover group">
+            <div class="bg-gradient-primary p-2 sm:p-3 rounded-full mr-3 sm:mr-4 shadow-button group-hover:scale-110 transition-transform-300">
+              <i class="fa fa-book text-white text-lg sm:text-xl"></i>
+            </div>
+            <div>
+              <h4 class="font-semibold text-base sm:text-lg mb-1 sm:mb-2">图书回收</h4>
+              <p class="text-sm sm:text-base text-gray-600">上传图书照片，AI自动识别并计算积分，不同类型图书积分规则不同</p>
+            </div>
+          </div>
+          <div class="flex items-start p-3 sm:p-4 bg-gray-50 rounded-xl card-hover group">
+            <div class="bg-gradient-to-br from-success to-green-600 p-2 sm:p-3 rounded-full mr-3 sm:mr-4 shadow-button group-hover:scale-110 transition-transform-300">
+              <i class="fa fa-calendar-check-o text-white text-lg sm:text-xl"></i>
+            </div>
+            <div>
+              <h4 class="font-semibold text-base sm:text-lg mb-1 sm:mb-2">每日签到</h4>
+              <p class="text-sm sm:text-base text-gray-600">每日签到获得5积分，连续签到7天额外奖励20积分</p>
+            </div>
+          </div>
+          <div class="flex items-start p-3 sm:p-4 bg-gray-50 rounded-xl card-hover group">
+            <div class="bg-gradient-to-br from-info to-blue-600 p-2 sm:p-3 rounded-full mr-3 sm:mr-4 shadow-button group-hover:scale-110 transition-transform-300">
+              <i class="fa fa-user-plus text-white text-lg sm:text-xl"></i>
+            </div>
+            <div>
+              <h4 class="font-semibold text-base sm:text-lg mb-1 sm:mb-2">邀请好友</h4>
+              <p class="text-sm sm:text-base text-gray-600">成功邀请好友注册并回收图书获得20积分</p>
+            </div>
+          </div>
+          <div class="flex items-start p-3 sm:p-4 bg-gray-50 rounded-xl card-hover group">
+            <div class="bg-gradient-to-br from-purple-600 to-indigo-600 p-2 sm:p-3 rounded-full mr-3 sm:mr-4 shadow-button group-hover:scale-110 transition-transform-300">
+              <i class="fa fa-share-alt text-white text-lg sm:text-xl"></i>
+            </div>
+            <div>
+              <h4 class="font-semibold text-base sm:text-lg mb-1 sm:mb-2">图书分享</h4>
+              <p class="text-sm sm:text-base text-gray-600">分享图书到社交媒体获得10积分</p>
+            </div>
+          </div>
+          <div class="flex items-start p-3 sm:p-4 bg-gray-50 rounded-xl card-hover group">
+            <div class="bg-gradient-to-br from-pink-600 to-rose-600 p-2 sm:p-3 rounded-full mr-3 sm:mr-4 shadow-button group-hover:scale-110 transition-transform-300">
+              <i class="fa fa-star text-white text-lg sm:text-xl"></i>
+            </div>
+            <div>
+              <h4 class="font-semibold text-base sm:text-lg mb-1 sm:mb-2">评价图书</h4>
+              <p class="text-sm sm:text-base text-gray-600">对回收的图书进行评价获得5积分</p>
+            </div>
+          </div>
+          <div class="flex items-start p-3 sm:p-4 bg-gray-50 rounded-xl card-hover group">
+            <div class="bg-gradient-to-br from-orange-500 to-amber-600 p-2 sm:p-3 rounded-full mr-3 sm:mr-4 shadow-button group-hover:scale-110 transition-transform-300">
+              <i class="fa fa-gift text-white text-lg sm:text-xl"></i>
+            </div>
+            <div>
+              <h4 class="font-semibold text-base sm:text-lg mb-1 sm:mb-2">参与活动</h4>
+              <p class="text-sm sm:text-base text-gray-600">参与平台活动获得额外积分奖励</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 积分使用方式 -->
+      <div class="max-w-4xl mx-auto mt-10 sm:mt-12 bg-white rounded-2xl p-5 sm:p-6 md:p-8 shadow-card animate-fade-in" style="animation-delay: 0.5s;">
+        <h3 class="text-lg sm:text-xl font-semibold mb-5 sm:mb-6 text-primary text-center">积分使用方式</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+          <div class="flex items-start p-3 sm:p-4 bg-gray-50 rounded-xl card-hover group">
+            <div class="bg-gradient-primary p-2 sm:p-3 rounded-full mr-3 sm:mr-4 shadow-button group-hover:scale-110 transition-transform-300">
+              <i class="fa fa-money text-white text-lg sm:text-xl"></i>
+            </div>
+            <div>
+              <h4 class="font-semibold text-base sm:text-lg mb-1 sm:mb-2">积分提现</h4>
+              <p class="text-sm sm:text-base text-gray-600">50积分 = 2元，可提现到支付宝或微信</p>
+            </div>
+          </div>
+          <div class="flex items-start p-3 sm:p-4 bg-gray-50 rounded-xl card-hover group">
+            <div class="bg-gradient-to-br from-success to-green-600 p-2 sm:p-3 rounded-full mr-3 sm:mr-4 shadow-button group-hover:scale-110 transition-transform-300">
+              <i class="fa fa-clock-o text-white text-lg sm:text-xl"></i>
+            </div>
+            <div>
+              <h4 class="font-semibold text-base sm:text-lg mb-1 sm:mb-2">兑换志愿时长</h4>
+              <p class="text-sm sm:text-base text-gray-600">100积分 = 1天志愿时长，可用于社会实践</p>
+            </div>
+          </div>
+          <div class="flex items-start p-3 sm:p-4 bg-gray-50 rounded-xl card-hover group">
+            <div class="bg-gradient-accent p-2 sm:p-3 rounded-full mr-3 sm:mr-4 shadow-button group-hover:scale-110 transition-transform-300">
+              <i class="fa fa-shopping-cart text-white text-lg sm:text-xl"></i>
+            </div>
+            <div>
+              <h4 class="font-semibold text-base sm:text-lg mb-1 sm:mb-2">抵扣现金</h4>
+              <p class="text-sm sm:text-base text-gray-600">1积分 = 1元，购买/租赁图书时最高抵扣50%</p>
+            </div>
+          </div>
+          <div class="flex items-start p-3 sm:p-4 bg-gray-50 rounded-xl card-hover group">
+            <div class="bg-gradient-to-br from-warning to-amber-600 p-2 sm:p-3 rounded-full mr-3 sm:mr-4 shadow-button group-hover:scale-110 transition-transform-300">
+              <i class="fa fa-gift text-white text-lg sm:text-xl"></i>
+            </div>
+            <div>
+              <h4 class="font-semibold text-base sm:text-lg mb-1 sm:mb-2">兑换礼品</h4>
+              <p class="text-sm sm:text-base text-gray-600">使用积分兑换平台提供的精美礼品</p>
+            </div>
+          </div>
+          <div class="flex items-start p-3 sm:p-4 bg-gray-50 rounded-xl card-hover group">
+            <div class="bg-gradient-to-br from-info to-blue-600 p-2 sm:p-3 rounded-full mr-3 sm:mr-4 shadow-button group-hover:scale-110 transition-transform-300">
+              <i class="fa fa-ticket text-white text-lg sm:text-xl"></i>
+            </div>
+            <div>
+              <h4 class="font-semibold text-base sm:text-lg mb-1 sm:mb-2">兑换优惠券</h4>
+              <p class="text-sm sm:text-base text-gray-600">使用积分兑换图书购买/租赁优惠券</p>
+            </div>
+          </div>
+          <div class="flex items-start p-3 sm:p-4 bg-gray-50 rounded-xl card-hover group">
+            <div class="bg-gradient-to-br from-purple-600 to-indigo-600 p-2 sm:p-3 rounded-full mr-3 sm:mr-4 shadow-button group-hover:scale-110 transition-transform-300">
+              <i class="fa fa-random text-white text-lg sm:text-xl"></i>
+            </div>
+            <div>
+              <h4 class="font-semibold text-base sm:text-lg mb-1 sm:mb-2">参与抽奖</h4>
+              <p class="text-sm sm:text-base text-gray-600">使用积分参与平台抽奖活动，赢取丰厚奖品</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 图书展示区域 -->
+  <section id="books" class="py-12 sm:py-16 bg-white">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-10 sm:mb-12">
+        <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold text-dark mb-4">热门回收图书</h2>
+        <p class="text-gray-600 max-w-2xl mx-auto">看看大家都在回收哪些图书，了解市场行情</p>
+      </div>
+      
+      <!-- 筛选功能 -->
+      <div class="max-w-5xl mx-auto mb-6 sm:mb-8 flex flex-wrap items-center justify-between gap-3 sm:gap-4">
+        <div class="flex items-center gap-3 sm:gap-4">
+          <select id="filter-type" class="px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm sm:text-base">
+            <option value="all">所有类型</option>
+            <option value="new">新书</option>
+            <option value="used">旧书</option>
+            <option value="notes">笔记</option>
+          </select>
+          <select id="filter-sort" class="px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm sm:text-base">
+            <option value="popular">按热度</option>
+            <option value="price-asc">价格从低到高</option>
+            <option value="price-desc">价格从高到低</option>
+            <option value="points">积分从高到低</option>
+          </select>
+        </div>
+        <div class="relative">
+          <input type="text" id="search-book" class="px-4 py-2 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="搜索图书">
+          <i class="fa fa-search absolute left-3 top-3 text-gray-400"></i>
+        </div>
+      </div>
+      
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6" id="books-container">
+        <!-- 图书卡片1 -->
+        <div class="bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1" data-type="new" data-price="89" data-points="17" data-popularity="98">
+          <div class="relative h-72 overflow-hidden">
+            <img src="https://picsum.photos/id/24/400/600" alt="图书封面" class="w-full h-full object-cover transition-transform duration-300 hover:scale-105">
+            <!-- 标签 -->
+            <div class="absolute top-2 left-2 flex flex-col gap-1">
+              <span class="bg-accent text-white text-xs font-bold px-2 py-1 rounded">包邮</span>
+              <span class="bg-primary text-white text-xs font-bold px-2 py-1 rounded">95新</span>
+            </div>
+            <div class="absolute top-2 right-2 bg-success text-white text-xs font-bold px-2 py-1 rounded">
+              新书
+            </div>
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-base mb-1 truncate">Python编程从入门到精通</h3>
+            <p class="text-gray-500 text-xs mb-2">作者：张三</p>
+            <p class="text-gray-400 text-xs mb-2">品相：全新未拆封</p>
+            <div class="flex items-center justify-between mb-2">
+              <div>
+                <span class="text-gray-400 text-xs line-through">原价 ¥89.00</span>
+                <div class="text-accent font-bold text-lg">¥5.00</div>
+              </div>
+              <div class="text-right">
+                <p class="text-xs text-gray-500">书香阁书店</p>
+              </div>
+            </div>
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-xs text-primary bg-primary/10 px-2 py-1 rounded">
+                <i class="fa fa-coins mr-1"></i>积分可抵扣
+              </span>
+              <span class="text-xs text-gray-500">热度: 98</span>
+            </div>
+            <button class="w-full bg-primary text-white font-medium py-2 rounded-lg hover:bg-secondary transition-colors text-sm">
+              <i class="fa fa-shopping-cart mr-1"></i> 立即购买
+            </button>
+          </div>
+        </div>
+        
+        <!-- 图书卡片2 -->
+        <div class="bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1" data-type="used" data-price="128" data-points="42" data-popularity="87">
+          <div class="relative h-72 overflow-hidden">
+            <img src="https://picsum.photos/id/25/400/600" alt="图书封面" class="w-full h-full object-cover transition-transform duration-300 hover:scale-105">
+            <!-- 标签 -->
+            <div class="absolute top-2 left-2 flex flex-col gap-1">
+              <span class="bg-accent text-white text-xs font-bold px-2 py-1 rounded">绝版</span>
+              <span class="bg-warning text-white text-xs font-bold px-2 py-1 rounded">极速发货</span>
+            </div>
+            <div class="absolute top-2 right-2 bg-accent text-white text-xs font-bold px-2 py-1 rounded">
+              旧书
+            </div>
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-base mb-1 truncate">算法导论（第3版）</h3>
+            <p class="text-gray-500 text-xs mb-2">作者：Thomas H. Cormen</p>
+            <p class="text-gray-400 text-xs mb-2">品相：九成新，少量笔记</p>
+            <div class="flex items-center justify-between mb-2">
+              <div>
+                <span class="text-gray-400 text-xs line-through">原价 ¥128.00</span>
+                <div class="text-accent font-bold text-lg">¥15.00</div>
+              </div>
+              <div class="text-right">
+                <p class="text-xs text-gray-500">知识海洋书店</p>
+              </div>
+            </div>
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-xs text-primary bg-primary/10 px-2 py-1 rounded">
+                <i class="fa fa-coins mr-1"></i>积分可抵扣
+              </span>
+              <span class="text-xs text-gray-500">热度: 87</span>
+            </div>
+            <button class="w-full bg-primary text-white font-medium py-2 rounded-lg hover:bg-secondary transition-colors text-sm">
+              <i class="fa fa-shopping-cart mr-1"></i> 立即购买
+            </button>
+          </div>
+        </div>
+        
+        <!-- 图书卡片3 -->
+        <div class="bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1" data-type="notes" data-price="50" data-points="20" data-popularity="92">
+          <div class="relative h-72 overflow-hidden">
+            <img src="https://picsum.photos/id/26/400/600" alt="图书封面" class="w-full h-full object-cover transition-transform duration-300 hover:scale-105">
+            <!-- 标签 -->
+            <div class="absolute top-2 left-2 flex flex-col gap-1">
+              <span class="bg-accent text-white text-xs font-bold px-2 py-1 rounded">包邮</span>
+              <span class="bg-success text-white text-xs font-bold px-2 py-1 rounded">精品</span>
+            </div>
+            <div class="absolute top-2 right-2 bg-warning text-white text-xs font-bold px-2 py-1 rounded">
+              笔记
+            </div>
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-base mb-1 truncate">考研数学笔记大全</h3>
+            <p class="text-gray-500 text-xs mb-2">作者：考研学霸</p>
+            <p class="text-gray-400 text-xs mb-2">品相：字迹清晰，内容完整</p>
+            <div class="flex items-center justify-between mb-2">
+              <div>
+                <span class="text-gray-400 text-xs line-through">原价 ¥68.00</span>
+                <div class="text-accent font-bold text-lg">¥8.00</div>
+              </div>
+              <div class="text-right">
+                <p class="text-xs text-gray-500">学霸笔记屋</p>
+              </div>
+            </div>
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-xs text-primary bg-primary/10 px-2 py-1 rounded">
+                <i class="fa fa-coins mr-1"></i>积分可抵扣
+              </span>
+              <span class="text-xs text-gray-500">热度: 92</span>
+            </div>
+            <button class="w-full bg-primary text-white font-medium py-2 rounded-lg hover:bg-secondary transition-colors text-sm">
+              <i class="fa fa-shopping-cart mr-1"></i> 立即购买
+            </button>
+          </div>
+        </div>
+        
+        <!-- 图书卡片4 -->
+        <div class="bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1" data-type="new" data-price="99" data-points="19" data-popularity="85">
+          <div class="relative h-72 overflow-hidden">
+            <img src="https://picsum.photos/id/27/400/600" alt="图书封面" class="w-full h-full object-cover transition-transform duration-300 hover:scale-105">
+            <!-- 标签 -->
+            <div class="absolute top-2 left-2 flex flex-col gap-1">
+              <span class="bg-accent text-white text-xs font-bold px-2 py-1 rounded">包邮</span>
+              <span class="bg-primary text-white text-xs font-bold px-2 py-1 rounded">95新</span>
+            </div>
+            <div class="absolute top-2 right-2 bg-success text-white text-xs font-bold px-2 py-1 rounded">
+              新书
+            </div>
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-base mb-1 truncate">JavaScript高级程序设计</h3>
+            <p class="text-gray-500 text-xs mb-2">作者：Nicholas C. Zakas</p>
+            <p class="text-gray-400 text-xs mb-2">品相：全新未拆封</p>
+            <div class="flex items-center justify-between mb-2">
+              <div>
+                <span class="text-gray-400 text-xs line-through">原价 ¥99.00</span>
+                <div class="text-accent font-bold text-lg">¥12.00</div>
+              </div>
+              <div class="text-right">
+                <p class="text-xs text-gray-500">技术图书专营</p>
+              </div>
+            </div>
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-xs text-primary bg-primary/10 px-2 py-1 rounded">
+                <i class="fa fa-coins mr-1"></i>积分可抵扣
+              </span>
+              <span class="text-xs text-gray-500">热度: 85</span>
+            </div>
+            <button class="w-full bg-primary text-white font-medium py-2 rounded-lg hover:bg-secondary transition-colors text-sm">
+              <i class="fa fa-shopping-cart mr-1"></i> 立即购买
+            </button>
+          </div>
+        </div>
+      </div>
+      
+      <div class="text-center mt-10">
+        <button class="bg-primary text-white font-medium px-8 py-3 rounded-full hover:bg-secondary transition-colors shadow-lg hover:shadow-xl">
+          查看更多图书 <i class="fa fa-angle-right ml-1"></i>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 数据可视化 -->
+  <section class="py-16 bg-white">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-12">
+        <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold text-dark mb-4 text-balance">数据概览</h2>
+        <p class="text-gray-600 max-w-2xl mx-auto leading-relaxed">了解平台的图书分布、价格趋势和交易情况</p>
+      </div>
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- 图书分类分布 -->
+        <div class="bg-white rounded-2xl shadow-card p-6 border border-neutral-dark">
+          <h3 class="text-lg font-semibold mb-4 text-dark">图书分类分布</h3>
+          <div class="h-64">
+            <canvas id="categoryChart"></canvas>
+          </div>
+        </div>
+        <!-- 价格趋势 -->
+        <div class="bg-white rounded-2xl shadow-card p-6 border border-neutral-dark">
+          <h3 class="text-lg font-semibold mb-4 text-dark">价格趋势</h3>
+          <div class="h-64">
+            <canvas id="priceChart"></canvas>
+          </div>
+        </div>
+        <!-- 交易量 -->
+        <div class="bg-white rounded-2xl shadow-card p-6 border border-neutral-dark">
+          <h3 class="text-lg font-semibold mb-4 text-dark">周交易量</h3>
+          <div class="h-64">
+            <canvas id="transactionChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 图书分类页面 -->
+  <section id="buy-book" class="py-16 bg-gray-100">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-12">
+        <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold text-dark mb-4">二手书交易平台</h2>
+        <p class="text-gray-600 max-w-2xl mx-auto">海量二手图书，价格实惠，品质保证</p>
+      </div>
+
+      <div class="flex flex-col lg:flex-row gap-6">
+        <!-- 左侧分类筛选 -->
+        <div class="lg:w-64 shrink-0">
+          <div class="bg-white rounded-lg shadow-sm p-4 mb-6">
+            <h3 class="font-bold text-lg mb-4 border-b pb-2">图书分类</h3>
+            <!-- 教材类 -->
+            <div class="mb-4">
+              <h4 class="font-semibold mb-2 text-gray-700">教材类</h4>
+              <ul class="space-y-1 pl-2">
+                <li><a href="#" class="block px-3 py-2 rounded hover:bg-gray-100 transition-colors">大学、研究生教材</a></li>
+                <li><a href="#" class="block px-3 py-2 rounded hover:bg-gray-100 transition-colors">高职、中职教材</a></li>
+                <li><a href="#" class="block px-3 py-2 rounded hover:bg-gray-100 transition-colors">成人教育教材</a></li>
+                <li class="pl-3">
+                  <h5 class="text-sm font-medium mb-1 text-gray-600">专业细分</h5>
+                  <ul class="space-y-1">
+                    <li><a href="#" class="block px-3 py-1 text-sm rounded hover:bg-gray-100 transition-colors">经管</a></li>
+                    <li><a href="#" class="block px-3 py-1 text-sm rounded hover:bg-gray-100 transition-colors">工学</a></li>
+                    <li><a href="#" class="block px-3 py-1 text-sm rounded hover:bg-gray-100 transition-colors">文法</a></li>
+                    <li><a href="#" class="block px-3 py-1 text-sm rounded hover:bg-gray-100 transition-colors">医学</a></li>
+                    <li><a href="#" class="block px-3 py-1 text-sm rounded hover:bg-gray-100 transition-colors">理学</a></li>
+                    <li><a href="#" class="block px-3 py-1 text-sm rounded hover:bg-gray-100 transition-colors">计算机</a></li>
+                  </ul>
+                </li>
+              </ul>
+            </div>
+            <!-- 考试类 -->
+            <div>
+              <h4 class="font-semibold mb-2 text-gray-700">考试类</h4>
+              <ul class="space-y-1 pl-2">
+                <li><a href="#" class="block px-3 py-2 rounded hover:bg-gray-100 transition-colors">公务员考试</a></li>
+                <li><a href="#" class="block px-3 py-2 rounded hover:bg-gray-100 transition-colors">考研</a></li>
+                <li><a href="#" class="block px-3 py-2 rounded hover:bg-gray-100 transition-colors">外语类考试</a></li>
+                <li><a href="#" class="block px-3 py-2 rounded hover:bg-gray-100 transition-colors">司法考试</a></li>
+                <li><a href="#" class="block px-3 py-2 rounded hover:bg-gray-100 transition-colors">会计 / 经济类考试</a></li>
+                <li><a href="#" class="block px-3 py-2 rounded hover:bg-gray-100 transition-colors">教师资格</a></li>
+                <li><a href="#" class="block px-3 py-2 rounded hover:bg-gray-100 transition-colors">医学考试</a></li>
+                <li><a href="#" class="block px-3 py-2 rounded hover:bg-gray-100 transition-colors">建筑工程类考试</a></li>
+                <li><a href="#" class="block px-3 py-2 rounded hover:bg-gray-100 transition-colors">计算机等级 / 资格考试</a></li>
+              </ul>
+            </div>
+          </div>
+          <!-- 筛选条件 -->
+          <div class="bg-white rounded-lg shadow-sm p-4">
+            <h3 class="font-bold text-lg mb-4 border-b pb-2">筛选条件</h3>
+            <!-- 出版年代 -->
+            <div class="mb-4">
+              <h4 class="font-semibold mb-2 text-gray-700">出版年代</h4>
+              <ul class="space-y-1 pl-2">
+                <li><a href="#" class="block px-3 py-2 rounded hover:bg-gray-100 transition-colors">近年 (2020-2026)</a></li>
+                <li><a href="#" class="block px-3 py-2 rounded hover:bg-gray-100 transition-colors">10年代 (2010-2019)</a></li>
+                <li><a href="#" class="block px-3 py-2 rounded hover:bg-gray-100 transition-colors">00年代 (2000-2009)</a></li>
+                <li><a href="#" class="block px-3 py-2 rounded hover:bg-gray-100 transition-colors">90年代 (1990-1999)</a></li>
+                <li><a href="#" class="block px-3 py-2 rounded hover:bg-gray-100 transition-colors">更早</a></li>
+              </ul>
+            </div>
+            <!-- 装帧形式 -->
+            <div class="mb-4">
+              <h4 class="font-semibold mb-2 text-gray-700">装帧形式</h4>
+              <ul class="space-y-1 pl-2">
+                <li><a href="#" class="block px-3 py-2 rounded hover:bg-gray-100 transition-colors">平装</a></li>
+                <li><a href="#" class="block px-3 py-2 rounded hover:bg-gray-100 transition-colors">精装</a></li>
+                <li><a href="#" class="block px-3 py-2 rounded hover:bg-gray-100 transition-colors">线装</a></li>
+                <li><a href="#" class="block px-3 py-2 rounded hover:bg-gray-100 transition-colors">其他</a></li>
+              </ul>
+            </div>
+            <!-- 价格区间 -->
+            <div>
+              <h4 class="font-semibold mb-2 text-gray-700">价格区间</h4>
+              <div class="px-2">
+                <div class="flex justify-between text-sm mb-2">
+                  <span>¥0</span>
+                  <span>¥100+</span>
+                </div>
+                <input type="range" min="0" max="100" value="50" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                <div class="flex justify-between mt-2">
+                  <input type="number" placeholder="最低" class="w-16 px-2 py-1 border border-gray-300 rounded text-sm">
+                  <input type="number" placeholder="最高" class="w-16 px-2 py-1 border border-gray-300 rounded text-sm">
+                </div>
+                <button class="w-full mt-3 bg-primary text-white px-3 py-2 rounded-lg hover:bg-secondary transition-colors text-sm">
+                  应用筛选
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 右侧图书列表 -->
+        <div class="flex-1">
+          <!-- 搜索和排序 -->
+          <div class="bg-white rounded-lg shadow-sm p-4 mb-6 flex flex-wrap items-center justify-between gap-4">
+            <div class="relative">
+              <input type="text" placeholder="搜索书名、作者、出版社" class="px-4 py-2 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+              <i class="fa fa-search absolute left-3 top-3 text-gray-400"></i>
+            </div>
+            <div class="flex items-center gap-4">
+              <select class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                <option value="popular">按热度排序</option>
+                <option value="price-asc">价格从低到高</option>
+                <option value="price-desc">价格从高到低</option>
+                <option value="newest">最新上架</option>
+              </select>
+              <select class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                <option value="all">全部出版社</option>
+                <option value="tsinghua">清华大学出版社</option>
+                <option value="peking">北京大学出版社</option>
+                <option value="renmin">人民出版社</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- 图书列表 -->
+          <div class="space-y-4">
+            <!-- 图书项1 -->
+            <div class="flex flex-col md:flex-row border-b pb-4 hover:bg-gray-50 transition-colors rounded p-2 hover-shadow">
+              <div class="md:w-24 flex-shrink-0 mb-3 md:mb-0">
+                <img src="https://picsum.photos/id/24/120/180" alt="Python编程从入门到精通" class="w-24 h-32 object-cover rounded shadow-sm">
+              </div>
+              <div class="flex-grow md:ml-4">
+                <div class="flex flex-col md:flex-row md:items-start justify-between">
+                  <div>
+                    <h4 class="font-bold text-lg mb-1"><a href="#" class="text-primary hover:underline">Python编程从入门到精通</a></h4>
+                    <p class="text-gray-600 text-sm mb-2">作者：张三</p>
+                    <div class="flex flex-wrap gap-2 text-xs text-gray-500 mb-2">
+                      <span>出版社：清华大学出版社</span>
+                      <span>·</span>
+                      <span>出版时间：2023-05</span>
+                      <span>·</span>
+                      <span>装帧：平装</span>
+                    </div>
+                  </div>
+                  <div class="md:text-right">
+                    <div class="mb-1">
+                      <span class="text-gray-500 line-through text-sm">原价：¥89.00</span>
+                    </div>
+                    <div class="mb-2">
+                      <span class="text-red-500 font-bold text-lg">二手价：¥5.00</span>
+                    </div>
+                    <div class="text-sm text-gray-600">
+                      在售商家：32家
+                    </div>
+                  </div>
+                </div>
+                <div class="mt-3 flex justify-end">
+                  <a href="#" class="bg-primary text-white px-4 py-1 rounded hover:bg-secondary transition-colors text-sm">
+                    查看详情
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <!-- 图书项2 -->
+            <div class="flex flex-col md:flex-row border-b pb-4 hover:bg-gray-50 transition-colors rounded p-2 hover-shadow">
+              <div class="md:w-24 flex-shrink-0 mb-3 md:mb-0">
+                <img src="https://picsum.photos/id/25/120/180" alt="算法导论（第3版）" class="w-24 h-32 object-cover rounded shadow-sm">
+              </div>
+              <div class="flex-grow md:ml-4">
+                <div class="flex flex-col md:flex-row md:items-start justify-between">
+                  <div>
+                    <h4 class="font-bold text-lg mb-1"><a href="#" class="text-primary hover:underline">算法导论（第3版）</a></h4>
+                    <p class="text-gray-600 text-sm mb-2">作者：Thomas H. Cormen</p>
+                    <div class="flex flex-wrap gap-2 text-xs text-gray-500 mb-2">
+                      <span>出版社：机械工业出版社</span>
+                      <span>·</span>
+                      <span>出版时间：2012-08</span>
+                      <span>·</span>
+                      <span>装帧：精装</span>
+                    </div>
+                  </div>
+                  <div class="md:text-right">
+                    <div class="mb-1">
+                      <span class="text-gray-500 line-through text-sm">原价：¥128.00</span>
+                    </div>
+                    <div class="mb-2">
+                      <span class="text-red-500 font-bold text-lg">二手价：¥15.00</span>
+                    </div>
+                    <div class="text-sm text-gray-600">
+                      在售商家：28家
+                    </div>
+                  </div>
+                </div>
+                <div class="mt-3 flex justify-end">
+                  <a href="#" class="bg-primary text-white px-4 py-1 rounded hover:bg-secondary transition-colors text-sm">
+                    查看详情
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <!-- 图书项3 -->
+            <div class="flex flex-col md:flex-row border-b pb-4 hover:bg-gray-50 transition-colors rounded p-2 hover-shadow">
+              <div class="md:w-24 flex-shrink-0 mb-3 md:mb-0">
+                <img src="https://picsum.photos/id/26/120/180" alt="考研数学笔记大全" class="w-24 h-32 object-cover rounded shadow-sm">
+              </div>
+              <div class="flex-grow md:ml-4">
+                <div class="flex flex-col md:flex-row md:items-start justify-between">
+                  <div>
+                    <h4 class="font-bold text-lg mb-1"><a href="#" class="text-primary hover:underline">考研数学笔记大全</a></h4>
+                    <p class="text-gray-600 text-sm mb-2">作者：考研学霸</p>
+                    <div class="flex flex-wrap gap-2 text-xs text-gray-500 mb-2">
+                      <span>出版社：高等教育出版社</span>
+                      <span>·</span>
+                      <span>出版时间：2024-01</span>
+                      <span>·</span>
+                      <span>装帧：平装</span>
+                    </div>
+                  </div>
+                  <div class="md:text-right">
+                    <div class="mb-1">
+                      <span class="text-gray-500 line-through text-sm">原价：¥68.00</span>
+                    </div>
+                    <div class="mb-2">
+                      <span class="text-red-500 font-bold text-lg">二手价：¥8.00</span>
+                    </div>
+                    <div class="text-sm text-gray-600">
+                      在售商家：15家
+                    </div>
+                  </div>
+                </div>
+                <div class="mt-3 flex justify-end">
+                  <a href="#" class="bg-primary text-white px-4 py-1 rounded hover:bg-secondary transition-colors text-sm">
+                    查看详情
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <!-- 图书项4 -->
+            <div class="flex flex-col md:flex-row border-b pb-4 hover:bg-gray-50 transition-colors rounded p-2 hover-shadow">
+              <div class="md:w-24 flex-shrink-0 mb-3 md:mb-0">
+                <img src="https://picsum.photos/id/27/120/180" alt="JavaScript高级程序设计" class="w-24 h-32 object-cover rounded shadow-sm">
+              </div>
+              <div class="flex-grow md:ml-4">
+                <div class="flex flex-col md:flex-row md:items-start justify-between">
+                  <div>
+                    <h4 class="font-bold text-lg mb-1"><a href="#" class="text-primary hover:underline">JavaScript高级程序设计</a></h4>
+                    <p class="text-gray-600 text-sm mb-2">作者：Nicholas C. Zakas</p>
+                    <div class="flex flex-wrap gap-2 text-xs text-gray-500 mb-2">
+                      <span>出版社：人民邮电出版社</span>
+                      <span>·</span>
+                      <span>出版时间：2020-06</span>
+                      <span>·</span>
+                      <span>装帧：平装</span>
+                    </div>
+                  </div>
+                  <div class="md:text-right">
+                    <div class="mb-1">
+                      <span class="text-gray-500 line-through text-sm">原价：¥99.00</span>
+                    </div>
+                    <div class="mb-2">
+                      <span class="text-red-500 font-bold text-lg">二手价：¥12.00</span>
+                    </div>
+                    <div class="text-sm text-gray-600">
+                      在售商家：22家
+                    </div>
+                  </div>
+                </div>
+                <div class="mt-3 flex justify-end">
+                  <a href="#" class="bg-primary text-white px-4 py-1 rounded hover:bg-secondary transition-colors text-sm">
+                    查看详情
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <!-- 图书项5 -->
+            <div class="flex flex-col md:flex-row border-b pb-4 hover:bg-gray-50 transition-colors rounded p-2 hover-shadow">
+              <div class="md:w-24 flex-shrink-0 mb-3 md:mb-0">
+                <img src="https://picsum.photos/id/28/120/180" alt="数据结构与算法分析" class="w-24 h-32 object-cover rounded shadow-sm">
+              </div>
+              <div class="flex-grow md:ml-4">
+                <div class="flex flex-col md:flex-row md:items-start justify-between">
+                  <div>
+                    <h4 class="font-bold text-lg mb-1"><a href="#" class="text-primary hover:underline">数据结构与算法分析</a></h4>
+                    <p class="text-gray-600 text-sm mb-2">作者：Mark Allen Weiss</p>
+                    <div class="flex flex-wrap gap-2 text-xs text-gray-500 mb-2">
+                      <span>出版社：机械工业出版社</span>
+                      <span>·</span>
+                      <span>出版时间：2019-03</span>
+                      <span>·</span>
+                      <span>装帧：平装</span>
+                    </div>
+                  </div>
+                  <div class="md:text-right">
+                    <div class="mb-1">
+                      <span class="text-gray-500 line-through text-sm">原价：¥79.00</span>
+                    </div>
+                    <div class="mb-2">
+                      <span class="text-red-500 font-bold text-lg">二手价：¥10.00</span>
+                    </div>
+                    <div class="text-sm text-gray-600">
+                      在售商家：18家
+                    </div>
+                  </div>
+                </div>
+                <div class="mt-3 flex justify-end">
+                  <a href="#" class="bg-primary text-white px-4 py-1 rounded hover:bg-secondary transition-colors text-sm">
+                    查看详情
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 分页 -->
+          <div class="mt-8 flex justify-center">
+            <nav class="flex items-center space-x-1">
+              <a href="#" class="px-3 py-2 rounded border border-gray-300 hover:bg-gray-50 transition-colors">
+                <i class="fa fa-angle-left"></i>
+              </a>
+              <a href="#" class="px-3 py-2 rounded border border-primary bg-primary text-white">1</a>
+              <a href="#" class="px-3 py-2 rounded border border-gray-300 hover:bg-gray-50 transition-colors">2</a>
+              <a href="#" class="px-3 py-2 rounded border border-gray-300 hover:bg-gray-50 transition-colors">3</a>
+              <span class="px-3 py-2">...</span>
+              <a href="#" class="px-3 py-2 rounded border border-gray-300 hover:bg-gray-50 transition-colors">124</a>
+              <a href="#" class="px-3 py-2 rounded border border-gray-300 hover:bg-gray-50 transition-colors">
+                <i class="fa fa-angle-right"></i>
+              </a>
+            </nav>
+          </div>
+        </div>
+      </div>
+
+      <!-- 二手书价格总结 -->
+      <div class="max-w-5xl mx-auto mt-12 bg-white rounded-lg shadow-sm p-6">
+        <h3 class="font-bold text-lg mb-4">二手书价格总结</h3>
+        <div class="space-y-2 text-gray-600">
+          <p>整体价格极低，大学教材、专业教材、考试资料二手价普遍在 <span class="font-medium">0.01 元～10 元</span> 区间。</p>
+          <p>公共课、热门考研基础教材 最便宜，大量 <span class="font-medium">1～5 元</span> 即可买到。</p>
+          <p>专业核心教材、大部头、绝版教材 稍贵，多在 <span class="font-medium">10～30 元</span> 区间。</p>
+          <p>极少数稀缺、绝版、经典专业书价格会更高，甚至高于原价。</p>
+          <p>二手价格普遍仅为原价的 <span class="font-medium">0.1～2 折</span>，远低于新书折扣。</p>
+          <p>价格主要受版次新旧、专业冷门程度、是否绝版、考试热度影响。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 个人中心页面 -->
+  <section id="profile" class="py-16 bg-white">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-12">
+        <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold text-dark mb-4">个人中心</h2>
+        <p class="text-gray-600 max-w-2xl mx-auto">管理您的积分、提现积分或兑换志愿时长，积分规则：50积分=2元，100积分=1天志愿时长</p>
+      </div>
+
+      <div class="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- 左侧：个人信息卡片 -->
+        <div class="lg:col-span-1">
+          <div class="bg-white rounded-xl card-shadow p-6 md:p-8 sticky top-24">
+            <div class="flex flex-col items-center mb-6">
+              <!-- 头像 -->
+              <div class="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center mb-4">
+                <i class="fa fa-user text-primary text-4xl"></i>
+              </div>
+              <!-- 用户名 -->
+              <h3 class="text-xl font-bold mb-1">图书爱好者</h3>
+              <p class="text-gray-500 text-sm">ID: B20250001</p>
+            </div>
+
+            <!-- 积分概览 -->
+            <div class="border-t border-gray-100 pt-6">
+              <h4 class="font-bold mb-4 text-lg">积分概览</h4>
+              <div class="space-y-4">
+                <div class="flex justify-between items-center">
+                  <span class="text-gray-600">总积分</span>
+                  <span class="text-primary font-bold text-xl" id="total-points">850</span>
+                </div>
+                <div class="flex justify-between items-center">
+                  <span class="text-gray-600">可用积分</span>
+                  <span class="text-primary font-bold text-xl" id="available-points">800</span>
+                </div>
+                <div class="flex justify-between items-center">
+                  <span class="text-gray-600">已兑换志愿时长</span>
+                  <span class="text-accent font-bold" id="volunteer-days">3天</span>
+                </div>
+                <div class="flex justify-between items-center">
+                  <span class="text-gray-600">累计提现金额</span>
+                  <span class="text-warning font-bold">¥28</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- 快捷操作 -->
+            <div class="border-t border-gray-100 pt-6 mt-6">
+              <h4 class="font-bold mb-4">快捷操作</h4>
+              <div class="grid grid-cols-2 gap-3">
+                <button class="bg-primary/10 text-primary py-2 rounded-lg hover:bg-primary hover:text-white transition-colors flex items-center justify-center">
+                  <i class="fa fa-history mr-1"></i> 积分记录
+                </button>
+                <button class="bg-accent/10 text-accent py-2 rounded-lg hover:bg-accent hover:text-white transition-colors flex items-center justify-center">
+                  <i class="fa fa-cog mr-1"></i> 账户设置
+                </button>
+                <button class="bg-warning/10 text-warning py-2 rounded-lg hover:bg-warning hover:text-white transition-colors flex items-center justify-center">
+                  <i class="fa fa-book mr-1"></i> 我的图书
+                </button>
+                <button class="bg-success/10 text-success py-2 rounded-lg hover:bg-success hover:text-white transition-colors flex items-center justify-center">
+                  <i class="fa fa-bell mr-1"></i> 通知中心
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 右侧：积分操作区域 -->
+        <div class="lg:col-span-2 space-y-8">
+          <!-- 积分提现模块 -->
+          <div class="bg-white rounded-xl card-shadow p-6 md:p-8">
+            <h3 class="text-xl font-bold mb-6 flex items-center">
+              <i class="fa fa-money text-warning mr-2"></i> 积分提现
+            </h3>
+            <div class="border border-gray-100 rounded-lg p-6 mb-6">
+              <p class="text-gray-600 mb-4">提现规则：<span class="font-bold text-primary">50积分 = 2元</span>（不足50积分无法提现）</p>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label class="block text-gray-700 font-medium mb-2" for="withdraw-points">
+                    提现积分 <span class="text-red-500">*</span>
+                  </label>
+                  <input 
+                    type="number" 
+                    id="withdraw-points" 
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" 
+                    placeholder="输入提现积分（50的倍数）" 
+                    min="50" 
+                    step="50"
+                  >
+                  <p class="text-gray-500 text-sm mt-2">当前可提现积分：<span id="withdraw-available">800</span>（最高）</p>
+                </div>
+                <div>
+                  <label class="block text-gray-700 font-medium mb-2" for="withdraw-amount">
+                    提现金额（元）
+                  </label>
+                  <input 
+                    type="text" 
+                    id="withdraw-amount" 
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-gray-50" 
+                    readonly 
+                    placeholder="自动计算"
+                  >
+                  <p class="text-gray-500 text-sm mt-2">提现金额 = 积分 ÷ 50 × 2</p>
+                </div>
+              </div>
+            </div>
+            <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+              <button id="calculate-withdraw" class="flex-1 bg-gray-200 text-gray-700 font-medium py-2 rounded-lg hover:bg-gray-300 transition-colors">
+                <i class="fa fa-calculator mr-2"></i> 计算金额
+              </button>
+              <button id="submit-withdraw" class="flex-1 bg-warning text-white font-medium py-2 rounded-lg hover:bg-warning/90 transition-colors">
+                <i class="fa fa-withdraw mr-2"></i> 提交提现
+              </button>
+            </div>
+          </div>
+
+          <!-- 志愿时长兑换模块 -->
+          <div class="bg-white rounded-xl card-shadow p-6 md:p-8">
+            <h3 class="text-xl font-bold mb-6 flex items-center">
+              <i class="fa fa-calendar-check-o text-accent mr-2"></i> 兑换志愿时长
+            </h3>
+            <div class="border border-gray-100 rounded-lg p-6 mb-6">
+              <p class="text-gray-600 mb-4">兑换规则：<span class="font-bold text-primary">100积分 = 1天志愿时长</span>（不足100积分无法兑换）</p>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label class="block text-gray-700 font-medium mb-2" for="volunteer-points">
+                    兑换积分 <span class="text-red-500">*</span>
+                  </label>
+                  <input 
+                    type="number" 
+                    id="volunteer-points" 
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" 
+                    placeholder="输入兑换积分（100的倍数）" 
+                    min="100" 
+                    step="100"
+                  >
+                  <p class="text-gray-500 text-sm mt-2">当前可兑换积分：<span id="volunteer-available">800</span>（最高）</p>
+                </div>
+                <div>
+                  <label class="block text-gray-700 font-medium mb-2" for="volunteer-days-calc">
+                    兑换时长（天）
+                  </label>
+                  <input 
+                    type="text" 
+                    id="volunteer-days-calc" 
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-gray-50" 
+                    readonly 
+                    placeholder="自动计算"
+                  >
+                  <p class="text-gray-500 text-sm mt-2">兑换时长 = 积分 ÷ 100</p>
+                </div>
+              </div>
+            </div>
+            <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+              <button id="calculate-volunteer" class="flex-1 bg-gray-200 text-gray-700 font-medium py-2 rounded-lg hover:bg-gray-300 transition-colors">
+                <i class="fa fa-calculator mr-2"></i> 计算时长
+              </button>
+              <button id="submit-volunteer" class="flex-1 bg-accent text-white font-medium py-2 rounded-lg hover:bg-accent/90 transition-colors">
+                <i class="fa fa-exchange mr-2"></i> 提交兑换
+              </button>
+            </div>
+          </div>
+
+          <!-- 新增：积分统计图表 -->
+          <div class="bg-white rounded-xl card-shadow p-6 md:p-8">
+            <h3 class="text-xl font-bold mb-6 flex items-center">
+              <i class="fa fa-bar-chart text-primary mr-2"></i> 积分统计
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+              <div class="bg-primary/5 p-4 rounded-lg">
+                <h4 class="text-sm text-gray-600 mb-1">本月收入</h4>
+                <p class="text-2xl font-bold text-primary">+250</p>
+              </div>
+              <div class="bg-accent/5 p-4 rounded-lg">
+                <h4 class="text-sm text-gray-600 mb-1">本月支出</h4>
+                <p class="text-2xl font-bold text-accent">-150</p>
+              </div>
+              <div class="bg-success/5 p-4 rounded-lg">
+                <h4 class="text-sm text-gray-600 mb-1">本月净增</h4>
+                <p class="text-2xl font-bold text-success">+100</p>
+              </div>
+            </div>
+            <div class="h-64">
+              <canvas id="pointsChart"></canvas>
+            </div>
+          </div>
+
+          <!-- 积分明细模块 -->
+          <div class="bg-white rounded-xl card-shadow p-6 md:p-8">
+            <h3 class="text-xl font-bold mb-6 flex items-center">
+              <i class="fa fa-list-alt text-primary mr-2"></i> 积分明细
+            </h3>
+            <div class="overflow-x-auto">
+              <table class="w-full min-w-[600px]">
+                <thead>
+                  <tr class="border-b border-gray-200">
+                    <th class="text-left py-3 px-4 font-semibold text-gray-700">时间</th>
+                    <th class="text-left py-3 px-4 font-semibold text-gray-700">类型</th>
+                    <th class="text-left py-3 px-4 font-semibold text-gray-700">描述</th>
+                    <th class="text-right py-3 px-4 font-semibold text-gray-700">积分</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr class="border-b border-gray-100 hover:bg-gray-50">
+                    <td class="py-3 px-4 text-sm text-gray-600">2025-11-28 14:30</td>
+                    <td class="py-3 px-4 text-sm">
+                      <span class="inline-block px-2 py-1 rounded-full bg-success/10 text-success text-xs font-medium">收入</span>
+                    </td>
+                    <td class="py-3 px-4 text-sm text-gray-600">图书回收 - 算法导论</td>
+                    <td class="py-3 px-4 text-sm font-medium text-success text-right">+42</td>
+                  </tr>
+                  <tr class="border-b border-gray-100 hover:bg-gray-50">
+                    <td class="py-3 px-4 text-sm text-gray-600">2025-11-25 10:15</td>
+                    <td class="py-3 px-4 text-sm">
+                      <span class="inline-block px-2 py-1 rounded-full bg-warning/10 text-warning text-xs font-medium">支出</span>
+                    </td>
+                    <td class="py-3 px-4 text-sm text-gray-600">兑换志愿时长</td>
+                    <td class="py-3 px-4 text-sm font-medium text-warning text-right">-200</td>
+                  </tr>
+                  <tr class="border-b border-gray-100 hover:bg-gray-50">
+                    <td class="py-3 px-4 text-sm text-gray-600">2025-11-20 16:40</td>
+                    <td class="py-3 px-4 text-sm">
+                      <span class="inline-block px-2 py-1 rounded-full bg-success/10 text-success text-xs font-medium">收入</span>
+                    </td>
+                    <td class="py-3 px-4 text-sm text-gray-600">图书回收 - Python编程</td>
+                    <td class="py-3 px-4 text-sm font-medium text-success text-right">+17</td>
+                  </tr>
+                  <tr class="border-b border-gray-100 hover:bg-gray-50">
+                    <td class="py-3 px-4 text-sm text-gray-600">2025-11-15 09:20</td>
+                    <td class="py-3 px-4 text-sm">
+                      <span class="inline-block px-2 py-1 rounded-full bg-success/10 text-success text-xs font-medium">收入</span>
+                    </td>
+                    <td class="py-3 px-4 text-sm text-gray-600">图书回收 - 考研笔记</td>
+                    <td class="py-3 px-4 text-sm font-medium text-success text-right">+20</td>
+                  </tr>
+                  <tr class="hover:bg-gray-50">
+                    <td class="py-3 px-4 text-sm text-gray-600">2025-11-10 11:30</td>
+                    <td class="py-3 px-4 text-sm">
+                      <span class="inline-block px-2 py-1 rounded-full bg-warning/10 text-warning text-xs font-medium">支出</span>
+                    </td>
+                    <td class="py-3 px-4 text-sm text-gray-600">购买图书 - JavaScript高级程序设计</td>
+                    <td class="py-3 px-4 text-sm font-medium text-warning text-right">-10</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="mt-6 text-center">
+              <button class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium px-6 py-2 rounded-lg transition-colors">
+                查看更多记录 <i class="fa fa-angle-right ml-1"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 联系我们 -->
+  <section id="contact" class="py-16 bg-gray-100">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-12">
+        <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold text-dark mb-4">联系我们</h2>
+        <p class="text-gray-600 max-w-2xl mx-auto">有任何问题或建议，欢迎联系我们</p>
+      </div>
+      
+      <div class="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div class="bg-white rounded-xl card-shadow p-6 md:p-8">
+          <h3 class="text-xl font-bold mb-6 text-primary">联系信息</h3>
+          <div class="space-y-4">
+            <div class="flex items-start">
+              <div class="flex-shrink-0 w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center mr-4">
+                <i class="fa fa-map-marker text-primary"></i>
+              </div>
+              <div>
+                <h4 class="font-medium mb-1">地址</h4>
+                <p class="text-gray-600">中国上海市浦东新区张江高科技园区博云路2号</p>
+              </div>
+            </div>
+            <div class="flex items-start">
+              <div class="flex-shrink-0 w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center mr-4">
+                <i class="fa fa-phone text-primary"></i>
+              </div>
+              <div>
+                <h4 class="font-medium mb-1">电话</h4>
+                <p class="text-gray-600">400-123-4567</p>
+              </div>
+            </div>
+            <div class="flex items-start">
+              <div class="flex-shrink-0 w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center mr-4">
+                <i class="fa fa-envelope text-primary"></i>
+              </div>
+              <div>
+                <h4 class="font-medium mb-1">邮箱</h4>
+                <p class="text-gray-600">contact@bookrecycle.com</p>
+              </div>
+            </div>
+          </div>
+          <div class="mt-8">
+            <h4 class="font-medium mb-4">关注我们</h4>
+            <div class="flex space-x-4">
+              <a href="#" class="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center hover:bg-primary hover:text-white transition-colors">
+                <i class="fa fa-weixin"></i>
+              </a>
+              <a href="#" class="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center hover:bg-primary hover:text-white transition-colors">
+                <i class="fa fa-weibo"></i>
+              </a>
+              <a href="#" class="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center hover:bg-primary hover:text-white transition-colors">
+                <i class="fa fa-qq"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+        <div class="bg-white rounded-xl card-shadow p-6 md:p-8">
+          <h3 class="text-xl font-bold mb-6 text-primary">留言咨询</h3>
+          <form class="space-y-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-gray-700 font-medium mb-1" for="name">姓名 <span class="text-red-500">*</span></label>
+                <input type="text" id="name" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="输入您的姓名" required>
+              </div>
+              <div>
+                <label class="block text-gray-700 font-medium mb-1" for="email">邮箱 <span class="text-red-500">*</span></label>
+                <input type="email" id="email" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="输入您的邮箱" required>
+              </div>
+            </div>
+            <div>
+              <label class="block text-gray-700 font-medium mb-1" for="subject">主题 <span class="text-red-500">*</span></label>
+              <input type="text" id="subject" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="输入留言主题" required>
+            </div>
+            <div>
+              <label class="block text-gray-700 font-medium mb-1" for="message">留言内容 <span class="text-red-500">*</span></label>
+              <textarea id="message" rows="4" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="输入您的留言内容" required></textarea>
+            </div>
+            <button type="submit" class="w-full bg-primary text-white font-medium py-3 rounded-lg hover:bg-secondary transition-colors">
+              提交留言 <i class="fa fa-paper-plane ml-2"></i>
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 页脚 -->
+  <footer class="bg-dark text-white py-12">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div>
+          <h3 class="text-lg font-bold mb-4 flex items-center">
+            <i class="fa fa-book text-primary mr-2"></i>
+            智能图书回收
+          </h3>
+          <p class="text-gray-400 mb-4">
+            智能识别图书，轻松兑换积分，让闲置图书焕发新价值
+          </p>
+          <div class="flex space-x-4">
+            <a href="#" class="text-gray-400 hover:text-primary transition-colors">
+              <i class="fa fa-weixin text-xl"></i>
+            </a>
+            <a href="#" class="text-gray-400 hover:text-primary transition-colors">
+              <i class="fa fa-weibo text-xl"></i>
+            </a>
+            <a href="#" class="text-gray-400 hover:text-primary transition-colors">
+              <i class="fa fa-qq text-xl"></i>
+            </a>
+          </div>
+        </div>
+        <div>
+          <h4 class="text-lg font-bold mb-4">快速链接</h4>
+          <ul class="space-y-2">
+            <li><a href="#home" class="text-gray-400 hover:text-primary transition-colors">首页</a></li>
+            <li><a href="#recognition" class="text-gray-400 hover:text-primary transition-colors">AI识别</a></li>
+            <li><a href="#pricing" class="text-gray-400 hover:text-primary transition-colors">积分规则</a></li>
+            <li><a href="#books" class="text-gray-400 hover:text-primary transition-colors">图书展示</a></li>
+            <li><a href="#buy-book" class="text-gray-400 hover:text-primary transition-colors">买书/租书</a></li>
+            <li><a href="#profile" class="text-gray-400 hover:text-primary transition-colors">个人中心</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="text-lg font-bold mb-4">服务支持</h4>
+          <ul class="space-y-2">
+            <li><a href="#" class="text-gray-400 hover:text-primary transition-colors">常见问题</a></li>
+            <li><a href="#" class="text-gray-400 hover:text-primary transition-colors">使用教程</a></li>
+            <li><a href="#" class="text-gray-400 hover:text-primary transition-colors">隐私政策</a></li>
+            <li><a href="#" class="text-gray-400 hover:text-primary transition-colors">用户协议</a></li>
+            <li><a href="#contact" class="text-gray-400 hover:text-primary transition-colors">联系我们</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="text-lg font-bold mb-4">联系我们</h4>
+          <ul class="space-y-2">
+            <li class="flex items-center text-gray-400">
+              <i class="fa fa-map-marker mr-2"></i>
+              <span>上海市浦东新区张江高科技园区</span>
+            </li>
+            <li class="flex items-center text-gray-400">
+              <i class="fa fa-phone mr-2"></i>
+              <span>400-123-4567</span>
+            </li>
+            <li class="flex items-center text-gray-400">
+              <i class="fa fa-envelope mr-2"></i>
+              <span>contact@bookrecycle.com</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+        <p>&copy; 2025 智能图书回收系统. 保留所有权利.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- JavaScript -->
+  <script>
+    // 导航栏滚动效果
+    window.addEventListener('scroll', function() {
+      const navbar = document.getElementById('navbar');
+      if (window.scrollY > 50) {
+        navbar.classList.add('bg-white/95', 'backdrop-blur-sm', 'shadow-lg');
+        navbar.classList.remove('shadow-md');
+      } else {
+        navbar.classList.remove('bg-white/95', 'backdrop-blur-sm', 'shadow-lg');
+        navbar.classList.add('shadow-md');
+      }
+    });
+
+    // 移动端菜单
+    document.getElementById('mobile-menu-button').addEventListener('click', function() {
+      const mobileMenu = document.getElementById('mobile-menu');
+      mobileMenu.classList.toggle('hidden');
+    });
+
+    // 平滑滚动
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const targetId = this.getAttribute('href');
+        const targetElement = document.querySelector(targetId);
+        if (targetElement) {
+          window.scrollTo({
+            top: targetElement.offsetTop - 80,
+            behavior: 'smooth'
+          });
+          // 关闭移动端菜单
+          document.getElementById('mobile-menu').classList.add('hidden');
+        }
+      });
+    });
+
+    // AI识别功能
+    const dropArea = document.getElementById('drop-area');
+    const fileInput = document.getElementById('file-input');
+    const uploadBtn = document.getElementById('upload-btn');
+    const resetBtn = document.getElementById('reset-btn');
+    const previewImage = document.getElementById('preview-image');
+    const fileList = document.getElementById('file-list');
+    const fileItems = document.getElementById('file-items');
+    const initialArea = document.getElementById('initial-area');
+    const loadingArea = document.getElementById('loading-area');
+    const resultArea = document.getElementById('result-area');
+    const formArea = document.getElementById('form-area');
+    const loadingBar = document.getElementById('loading-bar');
+    let selectedFiles = [];
+
+    // 拖拽功能
+    dropArea.addEventListener('dragover', function(e) {
+      e.preventDefault();
+      dropArea.classList.add('border-primary');
+    });
+
+    dropArea.addEventListener('dragleave', function() {
+      dropArea.classList.remove('border-primary');
+    });
+
+    dropArea.addEventListener('drop', function(e) {
+      e.preventDefault();
+      dropArea.classList.remove('border-primary');
+      const files = e.dataTransfer.files;
+      if (files.length > 0) {
+        handleFiles(files);
+      }
+    });
+
+    // 点击上传
+    dropArea.addEventListener('click', function() {
+      fileInput.click();
+    });
+
+    fileInput.addEventListener('change', function() {
+      if (this.files.length > 0) {
+        handleFiles(this.files);
+      }
+    });
+
+    uploadBtn.addEventListener('click', function() {
+      if (selectedFiles.length > 0) {
+        startRecognition();
+      } else {
+        fileInput.click();
+      }
+    });
+
+    // 重置按钮
+    resetBtn.addEventListener('click', function() {
+      resetUpload();
+    });
+
+    function handleFiles(files) {
+      selectedFiles = Array.from(files);
+      
+      // 显示文件列表
+      showFileList();
+      
+      // 如果有图片文件，显示第一张图片的预览
+      const imageFile = selectedFiles.find(file => file.type.startsWith('image/'));
+      if (imageFile) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          previewImage.src = e.target.result;
+          previewImage.classList.remove('hidden');
+          dropArea.classList.add('relative');
+        };
+        reader.readAsDataURL(imageFile);
+      } else {
+        // 如果没有图片文件，显示文件列表
+        previewImage.classList.add('hidden');
+        fileList.classList.remove('hidden');
+      }
+    }
+
+    function showFileList() {
+      fileItems.innerHTML = '';
+      selectedFiles.forEach((file, index) => {
+        const li = document.createElement('li');
+        li.className = 'flex items-center justify-between p-2 bg-gray-50 rounded';
+        
+        // 文件图标
+        let fileIcon = 'fa-file';
+        if (file.type.startsWith('image/')) {
+          fileIcon = 'fa-file-image-o';
+        } else if (file.type.includes('pdf')) {
+          fileIcon = 'fa-file-pdf-o';
+        } else if (file.type.includes('word')) {
+          fileIcon = 'fa-file-word-o';
+        } else if (file.type.includes('text')) {
+          fileIcon = 'fa-file-text-o';
+        }
+        
+        li.innerHTML = `
+          <div class="flex items-center">
+            <i class="fa ${fileIcon} text-primary mr-2"></i>
+            <span class="text-sm truncate max-w-xs">${file.name}</span>
+          </div>
+          <button type="button" class="text-red-500 hover:text-red-700" onclick="removeFile(${index})"><i class="fa fa-times"></i></button>
+        `;
+        fileItems.appendChild(li);
+      });
+      
+      fileList.classList.remove('hidden');
+    }
+
+    function removeFile(index) {
+      selectedFiles.splice(index, 1);
+      if (selectedFiles.length === 0) {
+        resetUpload();
+      } else {
+        showFileList();
+        
+        // 重新显示第一张图片的预览
+        const imageFile = selectedFiles.find(file => file.type.startsWith('image/'));
+        if (imageFile) {
+          const reader = new FileReader();
+          reader.onload = function(e) {
+            previewImage.src = e.target.result;
+            previewImage.classList.remove('hidden');
+            fileList.classList.add('hidden');
+          };
+          reader.readAsDataURL(imageFile);
+        }
+      }
+    }
+
+    function resetUpload() {
+      selectedFiles = [];
+      fileInput.value = '';
+      previewImage.classList.add('hidden');
+      fileList.classList.add('hidden');
+      dropArea.classList.remove('relative');
+      initialArea.classList.remove('hidden');
+      resultArea.classList.add('hidden');
+      formArea.classList.add('hidden');
+    }
+
+    function startRecognition() {
+      initialArea.classList.add('hidden');
+      loadingArea.classList.remove('hidden');
+      resultArea.classList.add('hidden');
+      formArea.classList.add('hidden');
+
+      // 模拟加载进度
+      let progress = 0;
+      const interval = setInterval(function() {
+        progress += 5;
+        loadingBar.style.width = progress + '%';
+        if (progress >= 100) {
+          clearInterval(interval);
+          // 模拟识别完成
+          setTimeout(function() {
+            loadingArea.classList.add('hidden');
+            resultArea.classList.remove('hidden');
+            formArea.classList.remove('hidden');
+            displayResults();
+          }, 500);
+        }
+      }, 100);
+    }
+
+    function displayResults() {
+      // 增加更多图书种类
+      const bookTypes = [
+        { name: '新书', category: 'new', basePrice: 100, priceRange: 50, conditionFactor: 0.8 },
+        { name: '旧书', category: 'used', basePrice: 70, priceRange: 40, conditionFactor: 1.2 },
+        { name: '笔记', category: 'notes', basePrice: 50, priceRange: 30, conditionFactor: 1.5 },
+        { name: '教材', category: 'textbook', basePrice: 80, priceRange: 40, conditionFactor: 1.0 },
+        { name: '教辅', category: 'reference', basePrice: 60, priceRange: 30, conditionFactor: 0.9 },
+        { name: '小说', category: 'novel', basePrice: 55, priceRange: 35, conditionFactor: 0.8 },
+        { name: '专业书籍', category: 'professional', basePrice: 120, priceRange: 60, conditionFactor: 0.9 },
+        { name: '杂志', category: 'magazine', basePrice: 20, priceRange: 15, conditionFactor: 0.7 },
+        { name: '绘本', category: 'picture', basePrice: 45, priceRange: 25, conditionFactor: 1.1 },
+        { name: '工具书', category: 'reference_book', basePrice: 100, priceRange: 50, conditionFactor: 1.0 }
+      ];
+      
+      // 随机选择图书类型
+      const randomTypeObj = bookTypes[Math.floor(Math.random() * bookTypes.length)];
+      const randomType = randomTypeObj.name;
+      const category = randomTypeObj.category;
+      const basePrice = randomTypeObj.basePrice;
+      const priceRange = randomTypeObj.priceRange;
+      const conditionFactor = randomTypeObj.conditionFactor;
+      
+      // 生成随机品相评分（70-100）
+      const conditionRating = Math.floor(Math.random() * 31) + 70;
+      
+      // 计算基础价格（基于类型）
+      const baseRandomPrice = basePrice + (Math.random() * priceRange - priceRange / 2);
+      
+      // 根据品相调整价格
+      const conditionAdjustment = (conditionRating / 100) * conditionFactor;
+      const finalPrice = Math.round(baseRandomPrice * conditionAdjustment);
+      
+      // 确保价格不低于最低值
+      const minPrice = {
+        'new': 50,
+        'used': 30,
+        'notes': 20,
+        'textbook': 40,
+        'reference': 30,
+        'novel': 20,
+        'professional': 60,
+        'magazine': 5,
+        'picture': 20,
+        'reference_book': 50
+      }[category] || 30;
+      
+      const price = Math.max(finalPrice, minPrice);
+      
+      // 计算积分（基于价格和图书类型）
+      let points = 0;
+      switch (category) {
+        case 'new':
+          points = Math.floor(price / 5);
+          break;
+        case 'used':
+          points = Math.floor(price / 3);
+          break;
+        case 'notes':
+          points = Math.floor((price / 5) * 2);
+          break;
+        case 'textbook':
+          points = Math.floor(price / 4);
+          break;
+        case 'reference':
+          points = Math.floor(price / 3.5);
+          break;
+        case 'novel':
+          points = Math.floor(price / 4.5);
+          break;
+        case 'professional':
+          points = Math.floor(price / 4);
+          break;
+        case 'magazine':
+          points = Math.floor(price / 2);
+          break;
+        case 'picture':
+          points = Math.floor(price / 3);
+          break;
+        case 'reference_book':
+          points = Math.floor(price / 4.5);
+          break;
+        default:
+          points = Math.floor(price / 4);
+      }
+
+      // 更新结果
+      document.getElementById('book-type').textContent = randomType;
+      document.getElementById('book-price').textContent = '¥' + price.toFixed(2);
+      document.getElementById('book-points').textContent = points + ' 积分';
+
+      // 生成AI评分
+      generateAIScore(randomType, category);
+    }
+
+    // 生成AI评分
+    function generateAIScore(bookType, category) {
+      // 随机生成各项评分
+      let condition = 0, content = 0, value = 0, rarity = 0;
+      
+      // 根据图书类型设置不同的评分范围
+      switch (category) {
+        case 'new':
+          condition = Math.floor(Math.random() * 10) + 90; // 90-100
+          content = Math.floor(Math.random() * 10) + 90; // 90-100
+          value = Math.floor(Math.random() * 15) + 80; // 80-95
+          rarity = Math.floor(Math.random() * 20) + 60; // 60-80
+          break;
+        case 'used':
+          condition = Math.floor(Math.random() * 30) + 60; // 60-90
+          content = Math.floor(Math.random() * 20) + 70; // 70-90
+          value = Math.floor(Math.random() * 25) + 60; // 60-85
+          rarity = Math.floor(Math.random() * 25) + 50; // 50-75
+          break;
+        case 'notes':
+          condition = Math.floor(Math.random() * 20) + 70; // 70-90
+          content = Math.floor(Math.random() * 15) + 80; // 80-95
+          value = Math.floor(Math.random() * 20) + 70; // 70-90
+          rarity = Math.floor(Math.random() * 30) + 60; // 60-90
+          break;
+        case 'textbook':
+          condition = Math.floor(Math.random() * 25) + 65; // 65-90
+          content = Math.floor(Math.random() * 15) + 80; // 80-95
+          value = Math.floor(Math.random() * 20) + 70; // 70-90
+          rarity = Math.floor(Math.random() * 20) + 60; // 60-80
+          break;
+        case 'reference':
+          condition = Math.floor(Math.random() * 20) + 70; // 70-90
+          content = Math.floor(Math.random() * 15) + 80; // 80-95
+          value = Math.floor(Math.random() * 20) + 70; // 70-90
+          rarity = Math.floor(Math.random() * 25) + 55; // 55-80
+          break;
+        case 'novel':
+          condition = Math.floor(Math.random() * 30) + 60; // 60-90
+          content = Math.floor(Math.random() * 20) + 70; // 70-90
+          value = Math.floor(Math.random() * 25) + 60; // 60-85
+          rarity = Math.floor(Math.random() * 30) + 50; // 50-80
+          break;
+        case 'professional':
+          condition = Math.floor(Math.random() * 20) + 70; // 70-90
+          content = Math.floor(Math.random() * 10) + 85; // 85-95
+          value = Math.floor(Math.random() * 15) + 80; // 80-95
+          rarity = Math.floor(Math.random() * 20) + 65; // 65-85
+          break;
+        case 'magazine':
+          condition = Math.floor(Math.random() * 35) + 55; // 55-90
+          content = Math.floor(Math.random() * 25) + 65; // 65-90
+          value = Math.floor(Math.random() * 30) + 50; // 50-80
+          rarity = Math.floor(Math.random() * 25) + 45; // 45-70
+          break;
+        case 'picture':
+          condition = Math.floor(Math.random() * 25) + 65; // 65-90
+          content = Math.floor(Math.random() * 20) + 70; // 70-90
+          value = Math.floor(Math.random() * 25) + 60; // 60-85
+          rarity = Math.floor(Math.random() * 20) + 60; // 60-80
+          break;
+        case 'reference_book':
+          condition = Math.floor(Math.random() * 20) + 75; // 75-95
+          content = Math.floor(Math.random() * 15) + 80; // 80-95
+          value = Math.floor(Math.random() * 15) + 80; // 80-95
+          rarity = Math.floor(Math.random() * 20) + 65; // 65-85
+          break;
+        default:
+          condition = Math.floor(Math.random() * 30) + 60; // 60-90
+          content = Math.floor(Math.random() * 20) + 70; // 70-90
+          value = Math.floor(Math.random() * 25) + 60; // 60-85
+          rarity = Math.floor(Math.random() * 25) + 50; // 50-75
+      }
+      
+      // 计算综合评分
+      const overall = Math.round((condition * 0.3 + content * 0.3 + value * 0.2 + rarity * 0.2));
+      
+      // 动态更新评分进度条
+      const conditionScore = document.getElementById('condition-score');
+      const conditionBar = document.getElementById('condition-bar');
+      const contentScore = document.getElementById('content-score');
+      const contentBar = document.getElementById('content-bar');
+      const valueScore = document.getElementById('value-score');
+      const valueBar = document.getElementById('value-bar');
+      const rarityScore = document.getElementById('rarity-score');
+      const rarityBar = document.getElementById('rarity-bar');
+      const overallScore = document.getElementById('overall-score');
+      const overallBar = document.getElementById('overall-bar');
+      
+      animateProgress(conditionScore, conditionBar, condition);
+      animateProgress(contentScore, contentBar, content);
+      animateProgress(valueScore, valueBar, value);
+      animateProgress(rarityScore, rarityBar, rarity);
+      animateProgress(overallScore, overallBar, overall);
+      
+      // 更新综合评级
+      updateOverallRating(overall);
+      
+      // 生成AI建议
+      generateAISuggestion(bookType, category, overall);
+      
+      // 更新评分历史
+      updateRatingHistory(overall);
+    }
+
+    // 动画更新进度条
+    function animateProgress(scoreElement, barElement, targetValue) {
+      let current = 0;
+      const increment = targetValue / 20;
+      const interval = setInterval(function() {
+        current += increment;
+        if (current >= targetValue) {
+          current = targetValue;
+          clearInterval(interval);
+        }
+        scoreElement.textContent = Math.round(current) + '%';
+        barElement.style.width = current + '%';
+      }, 20);
+    }
+
+    // 更新综合评级
+    function updateOverallRating(overall) {
+      const overallRating = document.getElementById('overall-rating');
+      let ratingText = '';
+      let ratingClass = '';
+      
+      if (overall >= 90) {
+        ratingText = '优秀';
+        ratingClass = 'bg-success/10 text-success';
+      } else if (overall >= 80) {
+        ratingText = '良好';
+        ratingClass = 'bg-primary/10 text-primary';
+      } else if (overall >= 70) {
+        ratingText = '一般';
+        ratingClass = 'bg-accent/10 text-accent';
+      } else {
+        ratingText = '需要评估';
+        ratingClass = 'bg-warning/10 text-warning';
+      }
+      
+      overallRating.textContent = ratingText;
+      overallRating.className = 'inline-block px-3 py-1 rounded-full font-medium text-sm ' + ratingClass;
+    }
+
+    // 生成AI建议
+    function generateAISuggestion(bookType, category, overall) {
+      const aiSuggestion = document.getElementById('ai-suggestion');
+      let suggestion = '';
+      
+      // 根据图书类型和评分生成具体建议
+      switch (category) {
+        case 'new':
+          if (overall >= 90) {
+            suggestion = '这本书状态非常好，建议以较高价格回收，可获得更多积分。';
+          } else {
+            suggestion = '这本书状态良好，是不错的回收选择。';
+          }
+          break;
+        case 'used':
+          if (overall >= 80) {
+            suggestion = '虽然是旧书，但状态较好，仍有一定的回收价值。';
+          } else {
+            suggestion = '这本书状态一般，建议根据实际情况评估回收价值。';
+          }
+          break;
+        case 'notes':
+          if (overall >= 85) {
+            suggestion = '这份笔记质量很高，具有参考价值，建议重点回收。';
+          } else {
+            suggestion = '这份笔记有一定参考价值，可以考虑回收。';
+          }
+          break;
+        case 'textbook':
+          if (overall >= 80) {
+            suggestion = '这本教材保存完好，内容完整，对其他学生有很大帮助，建议回收。';
+          } else {
+            suggestion = '这本教材有一定使用痕迹，但仍有参考价值，可以考虑回收。';
+          }
+          break;
+        case 'reference':
+          if (overall >= 85) {
+            suggestion = '这本教辅资料内容详实，对学习有很大帮助，建议回收。';
+          } else {
+            suggestion = '这本教辅资料有一定参考价值，可以考虑回收。';
+          }
+          break;
+        case 'novel':
+          if (overall >= 75) {
+            suggestion = '这本小说保存较好，适合再次阅读，建议回收。';
+          } else {
+            suggestion = '这本小说有一定使用痕迹，但仍可阅读，可以考虑回收。';
+          }
+          break;
+        case 'professional':
+          if (overall >= 85) {
+            suggestion = '这本专业书籍内容专业，保存完好，对相关领域的学习者有很大帮助，建议重点回收。';
+          } else {
+            suggestion = '这本专业书籍有一定参考价值，可以考虑回收。';
+          }
+          break;
+        case 'magazine':
+          if (overall >= 70) {
+            suggestion = '这本杂志保存较好，内容仍有参考价值，建议回收。';
+          } else {
+            suggestion = '这本杂志有一定使用痕迹，可以考虑回收。';
+          }
+          break;
+        case 'picture':
+          if (overall >= 80) {
+            suggestion = '这本绘本保存完好，插图清晰，对儿童阅读有很大帮助，建议回收。';
+          } else {
+            suggestion = '这本绘本有一定使用痕迹，但仍适合阅读，可以考虑回收。';
+          }
+          break;
+        case 'reference_book':
+          if (overall >= 85) {
+            suggestion = '这本工具书内容全面，保存完好，对学习和工作有很大帮助，建议重点回收。';
+          } else {
+            suggestion = '这本工具书有一定参考价值，可以考虑回收。';
+          }
+          break;
+        default:
+          if (overall >= 80) {
+            suggestion = '这本书状态较好，有一定回收价值。';
+          } else {
+            suggestion = '这本书可以考虑回收，具体价值需要进一步评估。';
+          }
+      }
+      
+      aiSuggestion.textContent = suggestion;
+    }
+
+    // 更新评分历史
+    function updateRatingHistory(overall) {
+      const ratingHistory = document.getElementById('rating-history');
+      const now = new Date();
+      const dateString = now.getFullYear() + '-' + 
+                        String(now.getMonth() + 1).padStart(2, '0') + '-' + 
+                        String(now.getDate()).padStart(2, '0') + ' ' + 
+                        String(now.getHours()).padStart(2, '0') + ':' + 
+                        String(now.getMinutes()).padStart(2, '0');
+      
+      const newEntry = document.createElement('div');
+      newEntry.className = 'flex justify-between text-xs text-gray-600';
+      newEntry.innerHTML = `
+        <span>${dateString}</span>
+        <span>综合评分: ${overall}%</span>
+      `;
+      
+      ratingHistory.insertBefore(newEntry, ratingHistory.firstChild);
+      
+      // 保持最多显示5条记录
+      if (ratingHistory.children.length > 5) {
+        ratingHistory.removeChild(ratingHistory.lastChild);
+      }
+    }
+
+    // 图书信息表单提交
+    document.getElementById('book-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      alert('图书信息提交成功！');
+      this.reset();
+    });
+
+    // 积分计算器
+    document.getElementById('calculate-points').addEventListener('click', function() {
+      const calcType = document.getElementById('calc-type').value;
+      const calcPrice = parseFloat(document.getElementById('calc-price').value) || 0;
+      const calcCondition = parseFloat(document.getElementById('calc-condition').value) || 1;
+      
+      let points = 0;
+      let formula = '';
+      
+      switch (calcType) {
+        case 'new':
+          points = Math.floor(calcPrice / 5);
+          formula = `${calcPrice} ÷ 5 = ${points}`;
+          break;
+        case 'used':
+          points = Math.floor((calcPrice / 3) * calcCondition);
+          formula = `(${calcPrice} ÷ 3) × ${calcCondition} = ${points}`;
+          break;
+        case 'notes':
+          points = Math.floor((calcPrice / 5) * 2 * calcCondition);
+          formula = `(${calcPrice} ÷ 5) × 2 × ${calcCondition} = ${points}`;
+          break;
+        case 'textbook':
+          points = Math.floor((calcPrice / 4) * calcCondition);
+          formula = `(${calcPrice} ÷ 4) × ${calcCondition} = ${points}`;
+          break;
+        case 'reference':
+          points = Math.floor((calcPrice / 3.5) * calcCondition);
+          formula = `(${calcPrice} ÷ 3.5) × ${calcCondition} = ${points}`;
+          break;
+        case 'novel':
+          points = Math.floor((calcPrice / 4.5) * calcCondition);
+          formula = `(${calcPrice} ÷ 4.5) × ${calcCondition} = ${points}`;
+          break;
+        case 'professional':
+          points = Math.floor((calcPrice / 4) * calcCondition);
+          formula = `(${calcPrice} ÷ 4) × ${calcCondition} = ${points}`;
+          break;
+        case 'magazine':
+          points = Math.floor((calcPrice / 2) * calcCondition);
+          formula = `(${calcPrice} ÷ 2) × ${calcCondition} = ${points}`;
+          break;
+        case 'picture':
+          points = Math.floor((calcPrice / 3) * calcCondition);
+          formula = `(${calcPrice} ÷ 3) × ${calcCondition} = ${points}`;
+          break;
+        case 'reference_book':
+          points = Math.floor((calcPrice / 4.5) * calcCondition);
+          formula = `(${calcPrice} ÷ 4.5) × ${calcCondition} = ${points}`;
+          break;
+        default:
+          points = Math.floor((calcPrice / 4) * calcCondition);
+          formula = `(${calcPrice} ÷ 4) × ${calcCondition} = ${points}`;
+      }
+      
+      document.getElementById('result-points').textContent = points + ' 积分';
+      document.getElementById('result-formula').textContent = formula;
+      document.getElementById('calc-result').classList.remove('hidden');
+    });
+
+    // 图书筛选功能
+    document.getElementById('filter-type').addEventListener('change', filterBooks);
+    document.getElementById('filter-sort').addEventListener('change', sortBooks);
+    document.getElementById('search-book').addEventListener('input', searchBooks);
+
+    function filterBooks() {
+      const filterType = document.getElementById('filter-type').value;
+      const bookCards = document.querySelectorAll('.book-card');
+      
+      bookCards.forEach(card => {
+        if (filterType === 'all' || card.dataset.type === filterType) {
+          card.style.display = 'block';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    }
+
+    function sortBooks() {
+      const filterSort = document.getElementById('filter-sort').value;
+      const booksContainer = document.getElementById('books-container');
+      const bookCards = Array.from(document.querySelectorAll('.book-card'));
+      
+      bookCards.sort((a, b) => {
+        if (filterSort === 'popular') {
+          return parseInt(b.dataset.popularity) - parseInt(a.dataset.popularity);
+        } else if (filterSort === 'price-asc') {
+          return parseFloat(a.dataset.price) - parseFloat(b.dataset.price);
+        } else if (filterSort === 'price-desc') {
+          return parseFloat(b.dataset.price) - parseFloat(a.dataset.price);
+        } else if (filterSort === 'points') {
+          return parseInt(b.dataset.points) - parseInt(a.dataset.points);
+        }
+        return 0;
+      });
+      
+      // 重新排列卡片
+      bookCards.forEach(card => {
+        booksContainer.appendChild(card);
+      });
+    }
+
+    function searchBooks() {
+      const searchTerm = document.getElementById('search-book').value.toLowerCase();
+      const bookCards = document.querySelectorAll('.book-card');
+      
+      bookCards.forEach(card => {
+        const title = card.querySelector('h3').textContent.toLowerCase();
+        if (title.includes(searchTerm)) {
+          card.style.display = 'block';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    }
+
+    // 积分提现计算
+    document.getElementById('calculate-withdraw').addEventListener('click', function() {
+      const withdrawPoints = parseInt(document.getElementById('withdraw-points').value) || 0;
+      if (withdrawPoints < 50) {
+        alert('提现积分至少为50');
+        return;
+      }
+      if (withdrawPoints % 50 !== 0) {
+        alert('提现积分必须是50的倍数');
+        return;
+      }
+      const amount = (withdrawPoints / 50) * 2;
+      document.getElementById('withdraw-amount').value = '¥' + amount.toFixed(2);
+    });
+
+    // 志愿时长计算
+    document.getElementById('calculate-volunteer').addEventListener('click', function() {
+      const volunteerPoints = parseInt(document.getElementById('volunteer-points').value) || 0;
+      if (volunteerPoints < 100) {
+        alert('兑换积分至少为100');
+        return;
+      }
+      if (volunteerPoints % 100 !== 0) {
+        alert('兑换积分必须是100的倍数');
+        return;
+      }
+      const days = volunteerPoints / 100;
+      document.getElementById('volunteer-days-calc').value = days + ' 天';
+    });
+
+    // 提交提现
+    document.getElementById('submit-withdraw').addEventListener('click', function() {
+      const withdrawPoints = parseInt(document.getElementById('withdraw-points').value) || 0;
+      if (withdrawPoints < 50) {
+        alert('提现积分至少为50');
+        return;
+      }
+      if (withdrawPoints % 50 !== 0) {
+        alert('提现积分必须是50的倍数');
+        return;
+      }
+      alert('提现申请提交成功！');
+      document.getElementById('withdraw-points').value = '';
+      document.getElementById('withdraw-amount').value = '';
+    });
+
+    // 提交志愿时长兑换
+    document.getElementById('submit-volunteer').addEventListener('click', function() {
+      const volunteerPoints = parseInt(document.getElementById('volunteer-points').value) || 0;
+      if (volunteerPoints < 100) {
+        alert('兑换积分至少为100');
+        return;
+      }
+      if (volunteerPoints % 100 !== 0) {
+        alert('兑换积分必须是100的倍数');
+        return;
+      }
+      alert('志愿时长兑换申请提交成功！');
+      document.getElementById('volunteer-points').value = '';
+      document.getElementById('volunteer-days-calc').value = '';
+    });
+
+    // 积分统计图表
+    window.addEventListener('load', function() {
+      const ctx = document.getElementById('pointsChart').getContext('2d');
+      new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
+          datasets: [
+            {
+              label: '积分收入',
+              data: [120, 190, 150, 220, 280, 320, 250, 300, 350, 400, 450, 500],
+              borderColor: '#4361ee',
+              backgroundColor: 'rgba(67, 97, 238, 0.1)',
+              tension: 0.4,
+              fill: true
+            },
+            {
+              label: '积分支出',
+              data: [80, 120, 100, 150, 180, 200, 160, 190, 220, 250, 280, 300],
+              borderColor: '#f72585',
+              backgroundColor: 'rgba(247, 37, 133, 0.1)',
+              tension: 0.4,
+              fill: true
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'top',
+            },
+            tooltip: {
+              mode: 'index',
+              intersect: false
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              title: {
+                display: true,
+                text: '积分'
+              }
+            },
+            x: {
+              title: {
+                display: true,
+                text: '月份'
+              }
+            }
+          }
+        }
+      });
+    });
+  </script>
+
+  <!-- 页面底部信息栏 -->
+  <footer class="bg-dark text-white py-12">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <!-- 关于我们 -->
+        <div>
+          <h3 class="text-lg font-bold mb-4 flex items-center">
+            <i class="fa fa-book text-primary mr-2"></i>
+            书驿云桥
+          </h3>
+          <p class="text-gray-400 text-sm mb-4">
+            专注于二手书交易的垂直电商平台，提供AI智能识别、积分兑换等创新服务，让每一本好书都能找到新的归宿。
+          </p>
+          <div class="flex space-x-3">
+            <a href="#" class="bg-gray-700 hover:bg-primary p-2 rounded-full transition-colors">
+              <i class="fa fa-weixin text-lg"></i>
+            </a>
+            <a href="#" class="bg-gray-700 hover:bg-primary p-2 rounded-full transition-colors">
+              <i class="fa fa-weibo text-lg"></i>
+            </a>
+            <a href="#" class="bg-gray-700 hover:bg-primary p-2 rounded-full transition-colors">
+              <i class="fa fa-qq text-lg"></i>
+            </a>
+          </div>
+        </div>
+        
+        <!-- 快速链接 -->
+        <div>
+          <h3 class="text-lg font-bold mb-4">快速链接</h3>
+          <ul class="space-y-2 text-gray-400 text-sm">
+            <li><a href="#" class="hover:text-primary transition-colors">首页</a></li>
+            <li><a href="#buy-book" class="hover:text-primary transition-colors">书店</a></li>
+            <li><a href="#recognition" class="hover:text-primary transition-colors">AI识别</a></li>
+            <li><a href="#pricing" class="hover:text-primary transition-colors">积分中心</a></li>
+            <li><a href="#profile" class="hover:text-primary transition-colors">个人中心</a></li>
+          </ul>
+        </div>
+        
+        <!-- 帮助中心 -->
+        <div>
+          <h3 class="text-lg font-bold mb-4">帮助中心</h3>
+          <ul class="space-y-2 text-gray-400 text-sm">
+            <li><a href="#" class="hover:text-primary transition-colors">新手指南</a></li>
+            <li><a href="#" class="hover:text-primary transition-colors">交易规则</a></li>
+            <li><a href="#" class="hover:text-primary transition-colors">积分规则</a></li>
+            <li><a href="#" class="hover:text-primary transition-colors">常见问题</a></li>
+            <li><a href="#contact" class="hover:text-primary transition-colors">联系我们</a></li>
+          </ul>
+        </div>
+        
+        <!-- 联系方式 -->
+        <div>
+          <h3 class="text-lg font-bold mb-4">联系方式</h3>
+          <div class="space-y-3 text-gray-400 text-sm">
+            <p class="flex items-center">
+              <i class="fa fa-phone mr-2 text-primary"></i>
+              客服热线：400-123-4567
+            </p>
+            <p class="flex items-center">
+              <i class="fa fa-envelope mr-2 text-primary"></i>
+              邮箱：service@shuyiyunqiao.com
+            </p>
+            <p class="flex items-center">
+              <i class="fa fa-clock-o mr-2 text-primary"></i>
+              服务时间：9:00-21:00
+            </p>
+            <p class="flex items-center">
+              <i class="fa fa-map-marker mr-2 text-primary"></i>
+              地址：北京市海淀区中关村大街1号
+            </p>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 底部版权信息 -->
+      <div class="border-t border-gray-700 mt-8 pt-8">
+        <div class="flex flex-col md:flex-row justify-between items-center">
+          <p class="text-gray-400 text-sm mb-4 md:mb-0">
+            © 2026 书驿云桥. All rights reserved. 
+            <a href="#" class="hover:text-primary transition-colors">京ICP备12345678号</a>
+          </p>
+          <div class="flex space-x-6 text-gray-400 text-sm">
+            <a href="#" class="hover:text-primary transition-colors">用户协议</a>
+            <a href="#" class="hover:text-primary transition-colors">隐私政策</a>
+            <a href="#" class="hover:text-primary transition-colors">关于我们</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>
